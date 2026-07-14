@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Screenshot Shield social preview</title>
+  <desc id="desc">Marketing card showing a browser screenshot with sensitive fields redacted locally.</desc>
+  <rect width="1200" height="630" fill="#fbf7ef"/>
+  <circle cx="1040" cy="90" r="260" fill="#235bff" opacity="0.12"/>
+  <circle cx="120" cy="560" r="230" fill="#0d6b56" opacity="0.10"/>
+  <g transform="translate(82 86)">
+    <text x="0" y="56" fill="#173ecc" font-family="Inter, ui-sans-serif, system-ui" font-size="26" font-weight="800" letter-spacing="4">SCREENSHOT SHIELD</text>
+    <text x="0" y="150" fill="#10131f" font-family="Inter, ui-sans-serif, system-ui" font-size="78" font-weight="900" letter-spacing="-5">Redact screenshots</text>
+    <text x="0" y="232" fill="#10131f" font-family="Inter, ui-sans-serif, system-ui" font-size="78" font-weight="900" letter-spacing="-5">before they leave</text>
+    <text x="0" y="302" fill="#596074" font-family="Inter, ui-sans-serif, system-ui" font-size="30">Local editor. OCR-assisted review. Fresh-canvas export.</text>
+  </g>
+  <g transform="translate(675 96)">
+    <rect width="420" height="390" rx="34" fill="#10131f"/>
+    <rect x="0" y="0" width="420" height="54" rx="34" fill="#151827"/>
+    <circle cx="32" cy="27" r="8" fill="#ff6b6b"/>
+    <circle cx="58" cy="27" r="8" fill="#ffd166"/>
+    <circle cx="84" cy="27" r="8" fill="#42d392"/>
+    <rect x="32" y="86" width="356" height="258" rx="22" fill="#ffffff"/>
+    <rect x="58" y="122" width="140" height="18" rx="9" fill="#d9d1c2"/>
+    <rect x="58" y="166" width="294" height="28" rx="14" fill="#10131f"/>
+    <rect x="58" y="219" width="224" height="28" rx="14" fill="#10131f"/>
+    <rect x="58" y="272" width="294" height="28" rx="14" fill="#10131f"/>
+  </g>
+</svg>

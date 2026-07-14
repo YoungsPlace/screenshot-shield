@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Screenshot Shield icon</title>
+  <desc id="desc">A shield with redacted lines on a warm background.</desc>
+  <rect width="512" height="512" rx="112" fill="#fbf7ef"/>
+  <path d="M256 72 398 126v102c0 91-54 169-142 212-88-43-142-121-142-212V126L256 72Z" fill="#10131f"/>
+  <path d="M256 111 360 151v78c0 68-39 126-104 161-65-35-104-93-104-161v-78l104-40Z" fill="#235bff"/>
+  <rect x="184" y="190" width="146" height="34" rx="17" fill="#ffffff"/>
+  <rect x="184" y="247" width="102" height="34" rx="17" fill="#10131f"/>
+  <rect x="184" y="304" width="146" height="34" rx="17" fill="#10131f"/>
+</svg>

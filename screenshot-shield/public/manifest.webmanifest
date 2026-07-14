@@ -1,0 +1,18 @@
+{
+  "name": "Screenshot Shield",
+  "short_name": "Shield",
+  "description": "A local-first screenshot redaction editor that runs in the browser.",
+  "start_url": "/screenshot-shield/",
+  "scope": "/screenshot-shield/",
+  "display": "standalone",
+  "background_color": "#fbf7ef",
+  "theme_color": "#10131f",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

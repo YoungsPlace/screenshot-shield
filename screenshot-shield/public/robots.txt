@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://youngsplace.github.io/screenshot-shield/sitemap.xml
