@@ -916,6 +916,12 @@
     max-inline-size: 100%;
   }
 
+  .proof-panel > div:first-child,
+  .limitations-section > div:first-child,
+  .final-cta > div:first-child {
+    inline-size: 100%;
+  }
+
   .lang-switcher {
     padding-inline: 8px;
   }

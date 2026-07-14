@@ -89,6 +89,7 @@ test('marketing headlines stay balanced without narrow-column wrapping', async (
       const styles = getComputedStyle(heading);
       const rect = heading.getBoundingClientRect();
       return {
+        text: heading.textContent?.trim() ?? '',
         lineCount: Math.round(rect.height / Number.parseFloat(styles.lineHeight)),
         width: rect.width,
       };
@@ -99,11 +100,12 @@ test('marketing headlines stay balanced without narrow-column wrapping', async (
   for (const metric of mobileMetrics) {
     expect(
       metric.lineCount,
-      'mobile section heading should not exceed three lines',
+      `${metric.text}: mobile heading should not exceed three lines`,
     ).toBeLessThanOrEqual(3);
-    expect(metric.width, 'mobile section heading should use the available column').toBeGreaterThan(
-      280,
-    );
+    expect(
+      metric.width,
+      `${metric.text}: mobile heading should use the available column`,
+    ).toBeGreaterThan(280);
   }
 });
 
