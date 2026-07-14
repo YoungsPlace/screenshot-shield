@@ -29,7 +29,7 @@ describe('release and privacy guardrails', () => {
   it('keeps release-owned files free of third-party runtime endpoints and fake secrets', () => {
     const combined = textFiles.map((file) => readFileSync(file, 'utf8')).join('\n');
     expect(combined).not.toMatch(
-      /https?:\/\/(?!github\.com|schemas\.openxmlformats\.org|127\.|localhost)/i,
+      /https?:\/\/(?!github\.com|youngsplace\.github\.io\/screenshot-shield(?:\/|$)|schemas\.openxmlformats\.org|127\.|localhost)/i,
     );
     expect(combined).not.toMatch(/sk_live_[A-Za-z0-9_-]+/);
     expect(combined).not.toMatch(/AKIA[0-9A-Z]{16}/);
