@@ -101,8 +101,26 @@ function decodePng(buffer: Buffer): DecodedPng {
   for (let y = 0; y < height; y += 1) {
     const filter = inflated[sourceOffset];
     sourceOffset += 1;
-    expect(filter, 'test decoder expects filter type 0').toBe(0);
-    rgba.set(inflated.subarray(sourceOffset, sourceOffset + stride), y * stride);
+    const rowDest = y * stride;
+    const raw = inflated.subarray(sourceOffset, sourceOffset + stride);
+    for (let x = 0; x < stride; x += 1) {
+      const above = y > 0 ? rgba[(y - 1) * stride + x] : 0;
+      const left = x >= 4 ? rgba[rowDest + x - 4] : 0;
+      const aboveLeft = x >= 4 && y > 0 ? rgba[(y - 1) * stride + x - 4] : 0;
+      let value = raw[x];
+      if (filter === 0) value = raw[x];
+      else if (filter === 1) value = (raw[x] + left) & 0xff;
+      else if (filter === 2) value = (raw[x] + above) & 0xff;
+      else if (filter === 3) value = (raw[x] + Math.floor((left + above) / 2)) & 0xff;
+      else if (filter === 4) {
+        const p = left + above - aboveLeft;
+        const pa = Math.abs(p - left);
+        const pb = Math.abs(p - above);
+        const pc = Math.abs(p - aboveLeft);
+        value = (raw[x] + (pa <= pb && pa <= pc ? left : pb <= pc ? above : aboveLeft)) & 0xff;
+      }
+      rgba[rowDest + x] = value;
+    }
     sourceOffset += stride;
   }
   return { width, height, rgba };
@@ -177,6 +195,19 @@ test('import, manual redaction, and PNG export use a fresh opaque canvas', async
 
   await expect(page.getByRole('button', { name: /undo/i })).toBeEnabled();
 
+  // Read the actual region box position (inline style px values equal image coords at zoom 1)
+  const regionBox = page.locator('.region-box').first();
+  await expect(regionBox).toBeVisible();
+  const regionStyle = await regionBox.evaluate((el: HTMLElement) => {
+    const { left, top, width, height } = el.style;
+    return {
+      left: parseFloat(left),
+      top: parseFloat(top),
+      width: parseFloat(width),
+      height: parseFloat(height),
+    };
+  });
+
   const download = await Promise.all([
     page.waitForEvent('download'),
     page
@@ -192,8 +223,9 @@ test('import, manual redaction, and PNG export use a fresh opaque canvas', async
   expect(decoded.width).toBe(320);
   expect(decoded.height).toBe(180);
 
-  const sampleX = Math.floor(decoded.width / 2);
-  const sampleY = Math.floor(decoded.height * 0.46);
+  // Sample the center of the actual drawn region (zoom=1 → style px = image px)
+  const sampleX = Math.round(regionStyle.left + regionStyle.width / 2);
+  const sampleY = Math.round(regionStyle.top + regionStyle.height / 2);
   const offset = (sampleY * decoded.width + sampleX) * 4;
   expect(decoded.rgba[offset + 3], 'redaction alpha is opaque').toBe(255);
   expect(

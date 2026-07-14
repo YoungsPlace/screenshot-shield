@@ -42,7 +42,10 @@ export function RedactionDemo() {
         </div>
       </div>
 
-      <div className="browser-frame" aria-label={`${isAfter ? 'Redacted' : 'Unredacted'} synthetic screenshot`}>
+      <div
+        className="browser-frame"
+        aria-label={`${isAfter ? 'Redacted' : 'Unredacted'} synthetic screenshot`}
+      >
         <div className="browser-chrome" aria-hidden="true">
           <span />
           <span />
@@ -64,8 +67,12 @@ export function RedactionDemo() {
               {syntheticRows.map((row) => (
                 <div className="data-row" key={row.label}>
                   <span>{row.label}</span>
-                  <span className={row.sensitive && isAfter ? 'redacted-value' : undefined}>
-                    {row.sensitive && isAfter ? 'Redacted' : row.value}
+                  <span
+                    className={
+                      'sensitive' in row && row.sensitive && isAfter ? 'redacted-value' : undefined
+                    }
+                  >
+                    {'sensitive' in row && row.sensitive && isAfter ? 'Redacted' : row.value}
                   </span>
                 </div>
               ))}

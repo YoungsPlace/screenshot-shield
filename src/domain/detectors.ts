@@ -4,7 +4,8 @@ const EMAIL_RE = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 const PHONE_RE = /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}\b/g;
 const IPV4_RE = /\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b/g;
 const URL_QUERY_RE = /\bhttps?:\/\/[^\s?#]+\?[^\s]+/gi;
-const TOKEN_RE = /\b(?:[A-Za-z0-9_-]{20,}|(?:sk|pk|ghp|gho|ghu|ghs|xoxb|ya29)[A-Za-z0-9_-]{10,})\b/g;
+const TOKEN_RE =
+  /\b(?:[A-Za-z0-9_-]{20,}|(?:sk|pk|ghp|gho|ghu|ghs|xoxb|ya29)[A-Za-z0-9_-]{10,})\b/g;
 const CARD_CANDIDATE_RE = /\b(?:\d[ -]*?){13,19}\b/g;
 
 interface PatternMatch {
@@ -52,13 +53,18 @@ export function findSensitivePatterns(text: string): PatternMatch[] {
     })).filter((match) => luhnValid(match.text)),
   ];
 
-  return matches.sort((first, second) => first.index - second.index || first.kind.localeCompare(second.kind));
+  return matches.sort(
+    (first, second) => first.index - second.index || first.kind.localeCompare(second.kind),
+  );
 }
 
 function boxForMatch(observation: TextObservation, match: PatternMatch): Rect {
   const textLength = Math.max(observation.text.length, 1);
   const startRatio = Math.max(0, Math.min(1, match.index / textLength));
-  const endRatio = Math.max(startRatio, Math.min(1, (match.index + match.text.length) / textLength));
+  const endRatio = Math.max(
+    startRatio,
+    Math.min(1, (match.index + match.text.length) / textLength),
+  );
   return {
     x: observation.box.x + observation.box.width * startRatio,
     y: observation.box.y,

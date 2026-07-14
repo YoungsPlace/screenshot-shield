@@ -21,6 +21,9 @@ export function validateImageDimensions(width: number, height: number): void {
   }
 
   if (width * height > MAX_IMAGE_PIXELS) {
-    throw new AppError('image-too-large', 'Screenshot has too many pixels for safe in-browser editing.');
+    throw new AppError(
+      'image-too-large',
+      'Screenshot has too many pixels for safe in-browser editing.',
+    );
   }
 }

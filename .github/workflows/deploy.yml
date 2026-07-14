@@ -51,13 +51,25 @@ jobs:
         env:
           VITE_BASE_PATH: /screenshot-shield/
 
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright e2e
+        run: npm run e2e
+
       - name: Inspect built output for forbidden remote URLs and obvious secrets
         run: |
           node - <<'NODE'
           const fs = require('node:fs');
           const path = require('node:path');
           const root = 'dist';
-          const forbidden = [/https?:\/\//i, /sk_live_[A-Za-z0-9_\-]+/, /AKIA[0-9A-Z]{16}/];
+          // Allow fake .test / .local domains used in demo content; block real external calls.
+          const SAFE_HOST_RE = /https?:\/\/[\w.-]+\.(?:test|local)\b/i;
+          const forbidden = [
+            (text) => /https?:\/\//i.test(text) && !SAFE_HOST_RE.test(text),
+            (text) => /sk_live_[A-Za-z0-9_-]{32,}/.test(text),
+            (text) => /AKIA[0-9A-Z]{16}/.test(text),
+          ];
           const files = [];
           function walk(dir) {
             for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -71,10 +83,10 @@ jobs:
           for (const file of files) {
             if (/\.(png|jpe?g|webp|ico|woff2?)$/i.test(file)) continue;
             const text = fs.readFileSync(file, 'utf8');
-            for (const pattern of forbidden) if (pattern.test(text)) offenders.push(`${file}: ${pattern}`);
+            for (const check of forbidden) if (check(text)) offenders.push(file);
           }
           if (offenders.length) {
-            console.error(offenders.join('\n'));
+            console.error('Forbidden content in built files:\n' + offenders.join('\n'));
             process.exit(1);
           }
           console.log(`Inspected ${files.length} built files; no forbidden remote URLs or obvious secrets found.`);

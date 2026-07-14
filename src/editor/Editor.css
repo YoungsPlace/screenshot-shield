@@ -82,7 +82,13 @@
 }
 
 .region-box.pixelate {
-  background: repeating-linear-gradient(45deg, rgba(5, 7, 13, 0.85), rgba(5, 7, 13, 0.85) 6px, rgba(143, 211, 255, 0.32) 6px, rgba(143, 211, 255, 0.32) 12px);
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(5, 7, 13, 0.85),
+    rgba(5, 7, 13, 0.85) 6px,
+    rgba(143, 211, 255, 0.32) 6px,
+    rgba(143, 211, 255, 0.32) 12px
+  );
 }
 
 .region-box.selected {

@@ -35,7 +35,8 @@ export interface TextObservation {
   box: Rect;
 }
 
-export type SensitivePatternKind = 'email' | 'phone' | 'payment-card' | 'ipv4' | 'url-query' | 'token';
+export type SensitivePatternKind =
+  'email' | 'phone' | 'payment-card' | 'ipv4' | 'url-query' | 'token';
 
 export interface SensitiveSuggestion extends Rect {
   id: string;

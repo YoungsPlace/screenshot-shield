@@ -2,8 +2,9 @@ import type { ExportOptions, ImageAsset, RedactionRegion } from './types';
 import { AppError } from './types';
 
 export function getCanvasContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
-  const context = canvas.getContext('2d', { alpha: false });
-  if (!context) throw new AppError('canvas-unavailable', 'Canvas rendering is unavailable in this browser.');
+  const context = canvas.getContext('2d');
+  if (!context)
+    throw new AppError('canvas-unavailable', 'Canvas rendering is unavailable in this browser.');
   return context;
 }
 
@@ -37,7 +38,17 @@ export function applyRedaction(context: CanvasRenderingContext2D, region: Redact
     );
     context.save();
     context.imageSmoothingEnabled = false;
-    context.drawImage(scratch, 0, 0, scratch.width, scratch.height, region.x, region.y, region.width, region.height);
+    context.drawImage(
+      scratch,
+      0,
+      0,
+      scratch.width,
+      scratch.height,
+      region.x,
+      region.y,
+      region.width,
+      region.height,
+    );
     context.fillStyle = 'rgba(0, 0, 0, 0.24)';
     context.fillRect(region.x, region.y, region.width, region.height);
     context.restore();
@@ -56,12 +67,17 @@ export function renderRedactedCanvas(asset: ImageAsset, options: ExportOptions):
   return canvas;
 }
 
-export function canvasToBlob(canvas: HTMLCanvasElement, format: ExportOptions['format'], quality: number): Promise<Blob> {
+export function canvasToBlob(
+  canvas: HTMLCanvasElement,
+  format: ExportOptions['format'],
+  quality: number,
+): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
         if (blob) resolve(blob);
-        else reject(new AppError('export-failed', 'The sanitized screenshot could not be exported.'));
+        else
+          reject(new AppError('export-failed', 'The sanitized screenshot could not be exported.'));
       },
       format,
       format === 'image/jpeg' ? quality : undefined,
@@ -69,6 +85,9 @@ export function canvasToBlob(canvas: HTMLCanvasElement, format: ExportOptions['f
   });
 }
 
-export async function exportRedactedImage(asset: ImageAsset, options: ExportOptions): Promise<Blob> {
+export async function exportRedactedImage(
+  asset: ImageAsset,
+  options: ExportOptions,
+): Promise<Blob> {
   return canvasToBlob(renderRedactedCanvas(asset, options), options.format, options.quality);
 }

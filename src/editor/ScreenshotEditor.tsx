@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AppError,
   clampRect,
@@ -8,6 +8,7 @@ import {
   exportRedactedImage,
   getLocalOcrSuggestions,
   isMeaningfulRect,
+  loadImageAsset,
   normalizeRect,
   observationsToSuggestions,
   pushHistory,
@@ -27,7 +28,11 @@ import './Editor.css';
 
 const initialSnapshot: EditorSnapshot = { regions: [], selectedRegionId: null };
 const syntheticOcrObservations: TextObservation[] = [
-  { text: 'demo@example.com token sk_live_redacted_1234567890', box: { x: 72, y: 72, width: 440, height: 32 }, confidence: 0.82 },
+  {
+    text: 'demo@example.com token sk_live_redacted_1234567890',
+    box: { x: 72, y: 72, width: 440, height: 32 },
+    confidence: 0.82,
+  },
 ];
 
 function regionId(): string {
@@ -54,7 +59,7 @@ function downloadBlob(blob: Blob, fileName: string): void {
   URL.revokeObjectURL(url);
 }
 
-export function ScreenshotEditor(): JSX.Element {
+export function ScreenshotEditor(): React.JSX.Element {
   const [asset, setAsset] = useState<ImageAsset | null>(null);
   const [history, setHistory] = useState(() => createHistory(initialSnapshot));
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +70,9 @@ export function ScreenshotEditor(): JSX.Element {
   const [exportFormat, setExportFormat] = useState<ExportOptions['format']>('image/png');
   const [jpegQuality, setJpegQuality] = useState(0.92);
   const [suggestions, setSuggestions] = useState<SensitiveSuggestion[]>([]);
-  const [ocrStatus, setOcrStatus] = useState('OCR suggestions are optional; manual redaction works without OCR.');
+  const [ocrStatus, setOcrStatus] = useState(
+    'OCR suggestions are optional; manual redaction works without OCR.',
+  );
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const layerRef = useRef<HTMLDivElement | null>(null);
   const startPointRef = useRef<Point | null>(null);
@@ -98,11 +105,14 @@ export function ScreenshotEditor(): JSX.Element {
     const canvas = canvasRef.current;
     if (!asset || !canvas) return;
     drawBaseImage(canvas, asset);
+    canvas.scrollIntoView({ behavior: 'instant', block: 'nearest' });
   }, [asset]);
 
   useEffect(() => {
     function onPaste(event: ClipboardEvent): void {
-      const file = Array.from(event.clipboardData?.files ?? []).find((item) => item.type.startsWith('image/'));
+      const file = Array.from(event.clipboardData?.files ?? []).find((item) =>
+        item.type.startsWith('image/'),
+      );
       if (file) void importFile(file);
     }
     window.addEventListener('paste', onPaste);
@@ -113,10 +123,11 @@ export function ScreenshotEditor(): JSX.Element {
     async (file: File) => {
       setError(null);
       try {
-        const { loadImageAsset } = await import('../domain/image');
         resetForAsset(await loadImageAsset(file));
       } catch (caught) {
-        setError(caught instanceof AppError ? caught.message : 'The screenshot could not be imported.');
+        setError(
+          caught instanceof AppError ? caught.message : 'The screenshot could not be imported.',
+        );
       }
     },
     [resetForAsset],
@@ -148,7 +159,11 @@ export function ScreenshotEditor(): JSX.Element {
     try {
       const detected = await getLocalOcrSuggestions(asset);
       setSuggestions(detected);
-      setOcrStatus(detected.length ? `${detected.length} suggestion(s) found locally.` : 'Local OCR ran but found no supported sensitive patterns.');
+      setOcrStatus(
+        detected.length
+          ? `${detected.length} suggestion(s) found locally.`
+          : 'Local OCR ran but found no supported sensitive patterns.',
+      );
     } catch (caught) {
       const fallback = observationsToSuggestions(syntheticOcrObservations);
       setSuggestions(fallback);
@@ -189,7 +204,11 @@ export function ScreenshotEditor(): JSX.Element {
       const extension = exportFormat === 'image/png' ? 'png' : 'jpg';
       downloadBlob(blob, `sanitized-${asset.fileName.replace(/\.[^.]+$/, '')}.${extension}`);
     } catch (caught) {
-      setError(caught instanceof AppError ? caught.message : 'The sanitized screenshot could not be exported.');
+      setError(
+        caught instanceof AppError
+          ? caught.message
+          : 'The sanitized screenshot could not be exported.',
+      );
     }
   }, [asset, exportFormat, jpegQuality, snapshot.regions]);
 
@@ -201,30 +220,45 @@ export function ScreenshotEditor(): JSX.Element {
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>): void {
     if (!asset || !layerRef.current) return;
     const point = imagePoint(event, layerRef.current, zoom);
-    const selected = [...snapshot.regions].reverse().find((region) => rectContainsPoint(region, point));
+    const selected = [...snapshot.regions]
+      .reverse()
+      .find((region) => rectContainsPoint(region, point));
     if (selected) {
       commitSnapshot({ ...snapshot, selectedRegionId: selected.id });
       return;
     }
     startPointRef.current = point;
-    const nextDraft: RedactionRegion = { id: 'draft-region', x: point.x, y: point.y, width: 0, height: 0, mode, source: 'manual' };
+    const nextDraft: RedactionRegion = {
+      id: 'draft-region',
+      x: point.x,
+      y: point.y,
+      width: 0,
+      height: 0,
+      mode,
+      source: 'manual',
+    };
     setDraft(nextDraft);
     event.currentTarget.setPointerCapture(event.pointerId);
   }
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>): void {
     if (!asset || !layerRef.current || !startPointRef.current) return;
-    const next = clampRect(normalizeRect(startPointRef.current, imagePoint(event, layerRef.current, zoom)), asset);
+    const next = clampRect(
+      normalizeRect(startPointRef.current, imagePoint(event, layerRef.current, zoom)),
+      asset,
+    );
     setDraft({ id: 'draft-region', ...next, mode, source: 'manual' });
   }
 
   function handlePointerUp(event: React.PointerEvent<HTMLDivElement>): void {
-    if (!draft || !asset) return;
+    if (!startPointRef.current || !asset || !layerRef.current) return;
     event.currentTarget.releasePointerCapture(event.pointerId);
-    const finalRect = clampRect(draft, asset);
+    const endPoint = imagePoint(event, layerRef.current, zoom);
+    const finalRect = clampRect(normalizeRect(startPointRef.current, endPoint), asset);
     startPointRef.current = null;
     setDraft(null);
-    if (isMeaningfulRect(finalRect)) addRegion({ ...finalRect, id: regionId(), mode, source: 'manual' });
+    if (isMeaningfulRect(finalRect))
+      addRegion({ ...finalRect, id: regionId(), mode, source: 'manual' });
   }
 
   return (
@@ -251,8 +285,15 @@ export function ScreenshotEditor(): JSX.Element {
         </button>
       </div>
 
-      {error ? <p className="notice error" role="alert">{error}</p> : null}
-      <p className="notice">Images stay in memory only. Paste, drop, or pick a PNG/JPEG/WebP screenshot; export is re-encoded from a fresh canvas.</p>
+      {error ? (
+        <p className="notice error" role="alert">
+          {error}
+        </p>
+      ) : null}
+      <p className="notice">
+        Images stay in memory only. Paste, drop, or pick a PNG/JPEG/WebP screenshot; export is
+        re-encoded from a fresh canvas.
+      </p>
 
       <div className="editor-layout">
         <div className="editor-panel">
@@ -267,7 +308,9 @@ export function ScreenshotEditor(): JSX.Element {
               onDrop={(event) => {
                 event.preventDefault();
                 setDraggingFile(false);
-                const file = Array.from(event.dataTransfer.files).find((item) => item.type.startsWith('image/'));
+                const file = Array.from(event.dataTransfer.files).find((item) =>
+                  item.type.startsWith('image/'),
+                );
                 if (file) void importFile(file);
               }}
             >
@@ -281,17 +324,32 @@ export function ScreenshotEditor(): JSX.Element {
               <div className="toolbar" aria-label="Editor controls">
                 <label>
                   Redaction mode{' '}
-                  <select value={mode} onChange={(event) => setMode(event.target.value as RedactionMode)}>
+                  <select
+                    value={mode}
+                    onChange={(event) => setMode(event.target.value as RedactionMode)}
+                  >
                     <option value="cover">Opaque cover</option>
                     <option value="pixelate">Pixelate + darken</option>
                   </select>
                 </label>
-                <button type="button" onClick={() => setZoom((value) => Math.max(0.2, value - 0.1))}>Zoom out</button>
-                <button type="button" onClick={() => setZoom(1)}>Fit 100%</button>
-                <button type="button" onClick={() => setZoom((value) => Math.min(3, value + 0.1))}>Zoom in</button>
+                <button
+                  type="button"
+                  onClick={() => setZoom((value) => Math.max(0.2, value - 0.1))}
+                >
+                  Zoom out
+                </button>
+                <button type="button" onClick={() => setZoom(1)}>
+                  Fit 100%
+                </button>
+                <button type="button" onClick={() => setZoom((value) => Math.min(3, value + 0.1))}>
+                  Zoom in
+                </button>
               </div>
               <div className="canvas-shell">
-                <div className="canvas-wrap" style={{ width: asset.width * zoom + 32, height: asset.height * zoom + 32 }}>
+                <div
+                  className="canvas-wrap"
+                  style={{ width: asset.width * zoom + 32, height: asset.height * zoom + 32 }}
+                >
                   <canvas
                     ref={canvasRef}
                     className="editor-canvas"
@@ -312,7 +370,8 @@ export function ScreenshotEditor(): JSX.Element {
                     onPointerUp={handlePointerUp}
                     onKeyDown={(event) => {
                       if (event.key === 'Delete' || event.key === 'Backspace') removeSelected();
-                      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z') setHistory((current) => undoHistory(current));
+                      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z')
+                        setHistory((current) => undoHistory(current));
                     }}
                   >
                     {visibleRegions.map((region) => (
@@ -320,7 +379,12 @@ export function ScreenshotEditor(): JSX.Element {
                         type="button"
                         key={region.id}
                         className={`region-box ${region.mode} ${snapshot.selectedRegionId === region.id ? 'selected' : ''}`}
-                        style={{ left: region.x * zoom, top: region.y * zoom, width: region.width * zoom, height: region.height * zoom }}
+                        style={{
+                          left: region.x * zoom,
+                          top: region.y * zoom,
+                          width: region.width * zoom,
+                          height: region.height * zoom,
+                        }}
                         aria-label={`${region.label ?? region.source} redaction`}
                         onClick={(event) => {
                           event.stopPropagation();
@@ -338,32 +402,67 @@ export function ScreenshotEditor(): JSX.Element {
         <aside className="side-panel" aria-label="Redaction review and export">
           <p className="meta">{stats}</p>
           <div className="history-actions">
-            <button type="button" disabled={!canUndo} onClick={() => setHistory((current) => undoHistory(current))}>Undo</button>
-            <button type="button" disabled={!canRedo} onClick={() => setHistory((current) => redoHistory(current))}>Redo</button>
-            <button type="button" disabled={!snapshot.selectedRegionId} onClick={removeSelected}>Remove selected</button>
-            <button className="danger" type="button" disabled={!snapshot.regions.length} onClick={clearAll}>Clear all</button>
+            <button
+              type="button"
+              disabled={!canUndo}
+              onClick={() => setHistory((current) => undoHistory(current))}
+            >
+              Undo
+            </button>
+            <button
+              type="button"
+              disabled={!canRedo}
+              onClick={() => setHistory((current) => redoHistory(current))}
+            >
+              Redo
+            </button>
+            <button type="button" disabled={!snapshot.selectedRegionId} onClick={removeSelected}>
+              Remove selected
+            </button>
+            <button
+              className="danger"
+              type="button"
+              disabled={!snapshot.regions.length}
+              onClick={clearAll}
+            >
+              Clear all
+            </button>
           </div>
 
           <h3>OCR-assisted suggestions</h3>
           <p className="meta">{ocrStatus}</p>
-          <button type="button" disabled={!asset} onClick={runSuggestions}>Review local suggestions</button>
+          <button type="button" disabled={!asset} onClick={runSuggestions}>
+            Review local suggestions
+          </button>
           <ul className="panel-list" aria-label="Detection suggestions">
             {suggestions.map((suggestion) => (
               <li key={suggestion.id}>
                 <strong>{suggestion.kind}</strong>
                 <p className="meta">{suggestion.text}</p>
-                <button type="button" disabled={!asset} onClick={() => acceptSuggestion(suggestion)}>Add redaction</button>
+                <button
+                  type="button"
+                  disabled={!asset}
+                  onClick={() => acceptSuggestion(suggestion)}
+                >
+                  Add redaction
+                </button>
               </li>
             ))}
           </ul>
 
           <h3>Regions</h3>
           <ul className="panel-list" aria-label="Redaction regions">
-            {snapshot.regions.length === 0 ? <li className="meta">No redactions yet. Draw over sensitive areas.</li> : null}
+            {snapshot.regions.length === 0 ? (
+              <li className="meta">No redactions yet. Draw over sensitive areas.</li>
+            ) : null}
             {snapshot.regions.map((region, index) => (
               <li key={region.id}>
-                <button type="button" onClick={() => commitSnapshot({ ...snapshot, selectedRegionId: region.id })}>
-                  Region {index + 1}: {Math.round(region.width)} × {Math.round(region.height)} {region.mode}
+                <button
+                  type="button"
+                  onClick={() => commitSnapshot({ ...snapshot, selectedRegionId: region.id })}
+                >
+                  Region {index + 1}: {Math.round(region.width)} × {Math.round(region.height)}{' '}
+                  {region.mode}
                 </button>
               </li>
             ))}
@@ -372,7 +471,11 @@ export function ScreenshotEditor(): JSX.Element {
           <h3>Export</h3>
           <div className="control-row">
             <label htmlFor="format">Format</label>
-            <select id="format" value={exportFormat} onChange={(event) => setExportFormat(event.target.value as ExportOptions['format'])}>
+            <select
+              id="format"
+              value={exportFormat}
+              onChange={(event) => setExportFormat(event.target.value as ExportOptions['format'])}
+            >
               <option value="image/png">PNG</option>
               <option value="image/jpeg">JPEG</option>
             </select>
@@ -380,10 +483,20 @@ export function ScreenshotEditor(): JSX.Element {
           {exportFormat === 'image/jpeg' ? (
             <div className="control-row">
               <label htmlFor="quality">JPEG quality {Math.round(jpegQuality * 100)}%</label>
-              <input id="quality" type="range" min="0.6" max="0.98" step="0.01" value={jpegQuality} onChange={(event) => setJpegQuality(Number(event.target.value))} />
+              <input
+                id="quality"
+                type="range"
+                min="0.6"
+                max="0.98"
+                step="0.01"
+                value={jpegQuality}
+                onChange={(event) => setJpegQuality(Number(event.target.value))}
+              />
             </div>
           ) : null}
-          <button className="primary" type="button" disabled={!asset} onClick={exportImage}>Download sanitized image</button>
+          <button className="primary" type="button" disabled={!asset} onClick={exportImage}>
+            Export sanitized PNG/JPEG
+          </button>
         </aside>
       </div>
     </section>
