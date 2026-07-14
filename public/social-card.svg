@@ -1,25 +1,113 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
-  <title id="title">Screenshot Shield social preview</title>
-  <desc id="desc">Marketing card showing a browser screenshot with sensitive fields redacted locally.</desc>
-  <rect width="1200" height="630" fill="#fbf7ef"/>
-  <circle cx="1040" cy="90" r="260" fill="#235bff" opacity="0.12"/>
-  <circle cx="120" cy="560" r="230" fill="#0d6b56" opacity="0.10"/>
-  <g transform="translate(82 86)">
-    <text x="0" y="56" fill="#173ecc" font-family="Inter, ui-sans-serif, system-ui" font-size="26" font-weight="800" letter-spacing="4">SCREENSHOT SHIELD</text>
-    <text x="0" y="150" fill="#10131f" font-family="Inter, ui-sans-serif, system-ui" font-size="78" font-weight="900" letter-spacing="-5">Redact screenshots</text>
-    <text x="0" y="232" fill="#10131f" font-family="Inter, ui-sans-serif, system-ui" font-size="78" font-weight="900" letter-spacing="-5">before they leave</text>
-    <text x="0" y="302" fill="#596074" font-family="Inter, ui-sans-serif, system-ui" font-size="30">Local editor. OCR-assisted review. Fresh-canvas export.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="sc-title sc-desc">
+  <title id="sc-title">Screenshot Shield — Redact before you share</title>
+  <desc id="sc-desc">Local-only screenshot redaction. Before: sensitive fields visible. After: opaque marks replace them. No upload, no server.</desc>
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1020"/>
+      <stop offset="100%" stop-color="#151827"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+  <!-- Accent glows -->
+  <circle cx="1080" cy="90" r="300" fill="#235bff" opacity="0.07"/>
+  <circle cx="110" cy="560" r="220" fill="#0d6b56" opacity="0.07"/>
+
+  <!-- ── Left: copy block ── -->
+  <g transform="translate(68,84)">
+    <!-- Badge pill -->
+    <rect width="228" height="32" rx="16" fill="#235bff" opacity="0.22"/>
+    <text x="114" y="21" fill="#9db7ff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" font-weight="800" letter-spacing="3" text-anchor="middle">SCREENSHOT SHIELD</text>
+
+    <!-- Headline -->
+    <text x="0" y="118" fill="#ffffff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="78" font-weight="900" letter-spacing="-4">Redact before</text>
+    <text x="0" y="196" fill="#ffffff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="78" font-weight="900" letter-spacing="-4">you share.</text>
+
+    <!-- Subline -->
+    <text x="0" y="252" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="21">Local editor · OCR-assisted · No upload</text>
+
+    <!-- CTA pill -->
+    <rect y="282" width="224" height="48" rx="24" fill="#235bff"/>
+    <text x="112" y="312" fill="#ffffff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="17" font-weight="800" text-anchor="middle">Open local editor →</text>
+
+    <!-- Trust badges row -->
+    <g transform="translate(0,352)">
+      <rect width="128" height="30" rx="15" fill="#ffffff" opacity="0.08"/>
+      <text x="64" y="20" fill="#9db7ff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" font-weight="700" text-anchor="middle">✓ No upload</text>
+
+      <rect x="140" width="144" height="30" rx="15" fill="#ffffff" opacity="0.08"/>
+      <text x="212" y="20" fill="#9db7ff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" font-weight="700" text-anchor="middle">✓ Fresh canvas</text>
+
+      <rect x="296" width="164" height="30" rx="15" fill="#ffffff" opacity="0.08"/>
+      <text x="378" y="20" fill="#9db7ff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12" font-weight="700" text-anchor="middle">✓ Manual fallback</text>
+    </g>
   </g>
-  <g transform="translate(675 96)">
-    <rect width="420" height="390" rx="34" fill="#10131f"/>
-    <rect x="0" y="0" width="420" height="54" rx="34" fill="#151827"/>
-    <circle cx="32" cy="27" r="8" fill="#ff6b6b"/>
-    <circle cx="58" cy="27" r="8" fill="#ffd166"/>
-    <circle cx="84" cy="27" r="8" fill="#42d392"/>
-    <rect x="32" y="86" width="356" height="258" rx="22" fill="#ffffff"/>
-    <rect x="58" y="122" width="140" height="18" rx="9" fill="#d9d1c2"/>
-    <rect x="58" y="166" width="294" height="28" rx="14" fill="#10131f"/>
-    <rect x="58" y="219" width="224" height="28" rx="14" fill="#10131f"/>
-    <rect x="58" y="272" width="294" height="28" rx="14" fill="#10131f"/>
+
+  <!-- ── Right: before / after browser frames ── -->
+
+  <!-- BEFORE frame -->
+  <g transform="translate(648,110)">
+    <rect width="218" height="350" rx="18" fill="#1a1e2d"/>
+    <!-- Browser chrome -->
+    <rect width="218" height="38" rx="18" fill="#111421"/>
+    <rect y="19" width="218" height="19" fill="#111421"/>
+    <circle cx="20" cy="19" r="7" fill="#ff6b6b"/>
+    <circle cx="40" cy="19" r="7" fill="#ffd166"/>
+    <circle cx="60" cy="19" r="7" fill="#42d392"/>
+    <!-- Rows -->
+    <text x="14" y="66" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">EMAIL</text>
+    <text x="14" y="84" fill="#dde0ee" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12">mina@example.test</text>
+    <rect x="0" y="96" width="218" height="1" fill="#252836"/>
+    <text x="14" y="116" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">PHONE</text>
+    <text x="14" y="134" fill="#dde0ee" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12">+1 (415) 555-0198</text>
+    <rect x="0" y="146" width="218" height="1" fill="#252836"/>
+    <text x="14" y="166" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">TOKEN</text>
+    <text x="14" y="184" fill="#dde0ee" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11">sk_live_7f4c2d9a01b8</text>
+    <rect x="0" y="196" width="218" height="1" fill="#252836"/>
+    <text x="14" y="216" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">URL</text>
+    <text x="14" y="234" fill="#dde0ee" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11">app.ex/reset?token=secret</text>
+    <rect x="0" y="246" width="218" height="1" fill="#252836"/>
+    <text x="14" y="266" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">OWNER</text>
+    <text x="14" y="284" fill="#dde0ee" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12">Mina Park</text>
+    <!-- BEFORE label -->
+    <rect x="59" y="312" width="100" height="24" rx="12" fill="#ff6b6b" opacity="0.16"/>
+    <text x="109" y="329" fill="#ff8888" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="900" text-anchor="middle" letter-spacing="2">BEFORE</text>
+  </g>
+
+  <!-- Arrow -->
+  <text x="886" y="292" fill="#235bff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="34" font-weight="900" text-anchor="middle">→</text>
+
+  <!-- AFTER frame -->
+  <g transform="translate(906,110)">
+    <rect width="218" height="350" rx="18" fill="#1a1e2d"/>
+    <!-- Browser chrome -->
+    <rect width="218" height="38" rx="18" fill="#111421"/>
+    <rect y="19" width="218" height="19" fill="#111421"/>
+    <circle cx="20" cy="19" r="7" fill="#ff6b6b"/>
+    <circle cx="40" cy="19" r="7" fill="#ffd166"/>
+    <circle cx="60" cy="19" r="7" fill="#42d392"/>
+    <!-- Rows — redacted -->
+    <text x="14" y="66" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">EMAIL</text>
+    <rect x="14" y="72" width="155" height="20" rx="4" fill="#10131f"/>
+    <text x="20" y="86" fill="#9db7ff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9" font-weight="900" letter-spacing="2">REDACTED</text>
+    <rect x="0" y="96" width="218" height="1" fill="#252836"/>
+    <text x="14" y="116" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">PHONE</text>
+    <rect x="14" y="122" width="134" height="20" rx="4" fill="#10131f"/>
+    <text x="20" y="136" fill="#9db7ff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9" font-weight="900" letter-spacing="2">REDACTED</text>
+    <rect x="0" y="146" width="218" height="1" fill="#252836"/>
+    <text x="14" y="166" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">TOKEN</text>
+    <rect x="14" y="172" width="164" height="20" rx="4" fill="#10131f"/>
+    <text x="20" y="186" fill="#9db7ff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9" font-weight="900" letter-spacing="2">REDACTED</text>
+    <rect x="0" y="196" width="218" height="1" fill="#252836"/>
+    <text x="14" y="216" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">URL</text>
+    <rect x="14" y="222" width="174" height="20" rx="4" fill="#10131f"/>
+    <text x="20" y="236" fill="#9db7ff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9" font-weight="900" letter-spacing="2">REDACTED</text>
+    <rect x="0" y="246" width="218" height="1" fill="#252836"/>
+    <text x="14" y="266" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">OWNER</text>
+    <text x="14" y="284" fill="#dde0ee" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12">Mina Park</text>
+    <!-- AFTER label -->
+    <rect x="59" y="312" width="100" height="24" rx="12" fill="#42d392" opacity="0.16"/>
+    <text x="109" y="329" fill="#42d392" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="900" text-anchor="middle" letter-spacing="2">AFTER</text>
   </g>
 </svg>
