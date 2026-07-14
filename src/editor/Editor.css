@@ -1,0 +1,133 @@
+.editor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 18px;
+  align-items: start;
+}
+
+.editor-panel,
+.side-panel,
+.dropzone {
+  padding: 18px;
+}
+
+.dropzone {
+  display: grid;
+  min-height: 220px;
+  place-items: center;
+  text-align: center;
+  border-style: dashed;
+  color: #d9e7fb;
+}
+
+.dropzone.dragging {
+  border-color: #8fd3ff;
+  background: rgba(143, 211, 255, 0.12);
+}
+
+.file-input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.canvas-shell {
+  overflow: auto;
+  margin-top: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.08) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.08) 75%);
+  background-position:
+    0 0,
+    0 10px,
+    10px -10px,
+    -10px 0;
+  background-size: 20px 20px;
+}
+
+.canvas-wrap {
+  position: relative;
+  width: fit-content;
+  min-width: 100%;
+  padding: 16px;
+}
+
+.editor-canvas,
+.region-layer {
+  display: block;
+  max-width: none;
+  border-radius: 6px;
+}
+
+.region-layer {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  touch-action: none;
+}
+
+.region-box {
+  position: absolute;
+  border: 2px solid #8fd3ff;
+  background: rgba(5, 7, 13, 0.72);
+  pointer-events: auto;
+}
+
+.region-box.pixelate {
+  background: repeating-linear-gradient(45deg, rgba(5, 7, 13, 0.85), rgba(5, 7, 13, 0.85) 6px, rgba(143, 211, 255, 0.32) 6px, rgba(143, 211, 255, 0.32) 12px);
+}
+
+.region-box.selected {
+  border-color: #ffe28a;
+  box-shadow: 0 0 0 3px rgba(255, 226, 138, 0.28);
+}
+
+.panel-list {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel-list li {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.error {
+  color: #ffd5df;
+  border-color: rgba(255, 112, 140, 0.4);
+  background: rgba(255, 80, 110, 0.14);
+}
+
+.control-row {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.control-row input,
+.control-row select {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fbff;
+  padding: 9px 10px;
+}
+
+.meta {
+  color: #aebed5;
+  font-size: 0.9rem;
+}
