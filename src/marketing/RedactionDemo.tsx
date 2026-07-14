@@ -1,6 +1,23 @@
 import { useId, useState } from 'react';
 
+import type { Locale, MarketingCopy } from './i18n';
+
 type DemoMode = 'before' | 'after';
+
+type DemoCopy = Pick<
+  MarketingCopy,
+  | 'demoEyebrow'
+  | 'demoTitle'
+  | 'demoBefore'
+  | 'demoAfter'
+  | 'demoAnnotationBefore'
+  | 'demoAnnotationAfter'
+>;
+
+export type RedactionDemoProps = {
+  readonly locale: Locale;
+  readonly copy: DemoCopy;
+};
 
 const syntheticRows = [
   { label: 'Owner', value: 'Mina Park' },
@@ -10,7 +27,7 @@ const syntheticRows = [
   { label: 'Public note', value: 'Share launch crop with design review' },
 ] as const;
 
-export function RedactionDemo() {
+export function RedactionDemo({ locale: _locale, copy }: RedactionDemoProps) {
   const [mode, setMode] = useState<DemoMode>('after');
   const labelId = useId();
   const isAfter = mode === 'after';
@@ -19,8 +36,8 @@ export function RedactionDemo() {
     <section className="redaction-demo" aria-labelledby={labelId}>
       <div className="demo-card__header">
         <div>
-          <p className="eyebrow">Synthetic preview</p>
-          <h2 id={labelId}>See the share-safe version first</h2>
+          <p className="eyebrow">{copy.demoEyebrow}</p>
+          <h2 id={labelId}>{copy.demoTitle}</h2>
         </div>
         <div className="demo-toggle" role="group" aria-label="Choose preview state">
           <button
@@ -29,7 +46,7 @@ export function RedactionDemo() {
             aria-pressed={mode === 'before'}
             onClick={() => setMode('before')}
           >
-            Before
+            {copy.demoBefore}
           </button>
           <button
             type="button"
@@ -37,14 +54,14 @@ export function RedactionDemo() {
             aria-pressed={mode === 'after'}
             onClick={() => setMode('after')}
           >
-            After
+            {copy.demoAfter}
           </button>
         </div>
       </div>
 
       <div
         className="browser-frame"
-        aria-label={`${isAfter ? 'Redacted' : 'Unredacted'} synthetic screenshot`}
+        aria-label={`${isAfter ? copy.demoAfter : copy.demoBefore} synthetic screenshot`}
       >
         <div className="browser-chrome" aria-hidden="true">
           <span />
@@ -79,11 +96,7 @@ export function RedactionDemo() {
             </div>
             <div className="demo-annotation">
               <span className="scan-line" />
-              <p>
-                {isAfter
-                  ? 'Opaque marks replace sensitive regions in the preview and export.'
-                  : 'Sensitive text remains visible until you review suggestions and add regions.'}
-              </p>
+              <p>{isAfter ? copy.demoAnnotationAfter : copy.demoAnnotationBefore}</p>
             </div>
           </div>
         </div>

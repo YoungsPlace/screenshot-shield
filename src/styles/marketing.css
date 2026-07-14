@@ -30,7 +30,7 @@
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  overflow: hidden;
+  overflow-x: clip;
 }
 
 .marketing-shell *,
@@ -48,6 +48,45 @@
 .marketing-shell :focus-visible {
   outline: 3px solid #ffbf47;
   outline-offset: 4px;
+}
+
+.lang-switcher {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 10px clamp(10px, 2vw, 24px);
+  background: rgb(251 247 239 / 88%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-block-end: 1px solid rgb(217 209 194 / 40%);
+}
+
+.lang-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--shield-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  min-block-size: 34px;
+  padding: 6px 14px;
+}
+
+.lang-btn:hover {
+  background: rgb(16 19 31 / 7%);
+  color: var(--shield-ink);
+}
+
+.lang-btn--active {
+  background: var(--shield-ink);
+  border-color: var(--shield-ink);
+  color: #ffffff;
 }
 
 .hero-section,
@@ -576,6 +615,7 @@
   .primary-cta,
   .secondary-link,
   .demo-toggle button,
+  .lang-btn,
   .redacted-value,
   .scan-line {
     transition:
