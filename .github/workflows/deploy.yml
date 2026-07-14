@@ -56,6 +56,9 @@ jobs:
 
       - name: Playwright e2e
         run: npm run e2e
+        env:
+          VITE_BASE_PATH: /screenshot-shield/
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173/screenshot-shield/
 
       - name: Inspect built output for forbidden remote URLs and obvious secrets
         run: |

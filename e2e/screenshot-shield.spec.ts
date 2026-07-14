@@ -154,7 +154,7 @@ test('landing, detector copy, keyboard focus, mobile layout, and zero third-part
     }
   });
 
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.getByRole('heading', { name: /screenshot shield/i })).toBeVisible();
   await expect(page.getByText(/browser|local|same-origin|never leaves/i).first()).toBeVisible();
   for (const detector of [
@@ -177,7 +177,7 @@ test('landing, detector copy, keyboard focus, mobile layout, and zero third-part
 });
 
 test('import, manual redaction, and PNG export use a fresh opaque canvas', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   await importSyntheticScreenshot(page);
 
   await editorCanvas(page);
@@ -238,7 +238,7 @@ test('import, manual redaction, and PNG export use a fresh opaque canvas', async
 });
 
 test('typed import failure is user-facing', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('./');
   const input = page.locator('input[type="file"]').first();
   await expect(input).toBeAttached();
   await input.setInputFiles({

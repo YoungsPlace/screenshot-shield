@@ -12,7 +12,7 @@ test('mobile landing remains readable and local-only', async ({ page }) => {
   });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('./');
   await expect(page.getByRole('heading', { name: /screenshot shield/i })).toBeVisible();
   await expect(page.getByText(/paste|drop|select|import/i).first()).toBeVisible();
   await expect(page.getByText(/local|browser|same-origin|never leaves/i).first()).toBeVisible();
