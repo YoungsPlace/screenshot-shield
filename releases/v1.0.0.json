@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 2,
+  "documentType": "screenshot-shield-release-plan",
+  "release": {
+    "tag": "v1.0.0",
+    "version": "1.0.0",
+    "releaseName": "Screenshot Shield 1.0.0"
+  },
+  "identifiers": {
+    "applicationName": "Screenshot Shield",
+    "iosBundleIdentifier": "io.github.youngsplace.screenshotshield",
+    "androidApplicationId": "io.github.youngsplace.screenshotshield",
+    "urlScheme": "screenshotshield",
+    "publicBaseUrl": "https://youngsplace.github.io/screenshot-shield/"
+  },
+  "aggregateClosure": {
+    "state": "open-planned",
+    "allowedStates": ["open-planned", "blocked", "evidence-complete"],
+    "closedAtUtc": null,
+    "closedBy": null,
+    "evidence": null,
+    "rule": "evidence-complete is allowed only when both platform lifecycles are production-available, both 72-hour observations are closed cleanly, and rollback readiness is verified."
+  },
+  "allowedPlatformStates": [
+    "planned",
+    "lock-approved",
+    "spike-passed",
+    "built-uncredentialed",
+    "signed",
+    "uploaded-processing",
+    "internal-or-closed",
+    "submitted",
+    "approved-not-published",
+    "production-available",
+    "halted",
+    "removed",
+    "remediation-building"
+  ],
+  "source": {
+    "repository": "https://github.com/YoungsPlace/screenshot-shield",
+    "sourceCommit": null,
+    "releaseCommit": null,
+    "sourceArchiveSha256": null,
+    "sourceTreeDigest": null,
+    "requirement": "Record exact immutable source and release commits plus observed digests before protected signing."
+  },
+  "platforms": {
+    "ios": {
+      "state": "planned",
+      "haltReason": null,
+      "marketingVersion": "1.0.0",
+      "counter": {
+        "name": "CFBundleVersion",
+        "value": 1,
+        "mustAdvanceIndependently": true
+      },
+      "toolchainEvidence": null,
+      "physicalGateEvidence": null,
+      "unsignedCandidateEvidence": null,
+      "signedArtifactEvidence": null,
+      "processingEvidence": null,
+      "cohortEvidence": null,
+      "reviewEvidence": null,
+      "publicationEvidence": null,
+      "availabilityEvidence": null,
+      "observation": {
+        "state": "not-started",
+        "startedAtUtc": null,
+        "completedAtUtc": null,
+        "minimumHours": 72,
+        "evidence": null,
+        "finalDisposition": null
+      },
+      "rollback": {
+        "readinessVerified": false,
+        "readinessEvidence": null,
+        "executionRequired": false,
+        "removalReceipt": null,
+        "remediationBuildEvidence": null
+      }
+    },
+    "android": {
+      "state": "planned",
+      "haltReason": null,
+      "versionName": "1.0.0",
+      "counter": {
+        "name": "versionCode",
+        "value": 1,
+        "mustAdvanceIndependently": true
+      },
+      "toolchainEvidence": null,
+      "physicalGateEvidence": null,
+      "unsignedCandidateEvidence": null,
+      "signedArtifactEvidence": null,
+      "processingEvidence": null,
+      "cohortEvidence": null,
+      "reviewEvidence": null,
+      "publicationEvidence": null,
+      "availabilityEvidence": null,
+      "observation": {
+        "state": "not-started",
+        "startedAtUtc": null,
+        "completedAtUtc": null,
+        "minimumHours": 72,
+        "evidence": null,
+        "finalDisposition": null
+      },
+      "rollback": {
+        "readinessVerified": false,
+        "readinessEvidence": null,
+        "executionRequired": false,
+        "removalReceipt": null,
+        "remediationBuildEvidence": null
+      }
+    }
+  },
+  "independentProgressionRule": "iOS and Android states, counters, artifacts, approvals, observation clocks, halt/removal actions, and remediation builds advance independently. Shared-source or privacy defects may halt both but never copy evidence between platforms.",
+  "cohortRequirements": {
+    "minimumDurationHoursPerPlatform": 48,
+    "minimumSyntheticRunsPerPlatform": 20,
+    "minimumNamedPhysicalDevicesPerPlatform": 3,
+    "maximumP0": 0,
+    "maximumP1": 0,
+    "maximumUnresolvedPrivacyWarnings": 0
+  },
+  "publicationPolicy": {
+    "version100": "full or explicit-country publication only",
+    "percentageRollout": "prohibited for 1.0.0",
+    "automaticPublication": false,
+    "minimumPublicObservationHoursPerPlatform": 72
+  },
+  "privacy": {
+    "backend": false,
+    "account": false,
+    "ads": false,
+    "analytics": false,
+    "telemetry": false,
+    "crashEgress": false,
+    "tracking": false,
+    "appControlledCollection": false,
+    "appControlledSharing": false,
+    "remoteOcr": false,
+    "broadPermissions": false,
+    "camera": false,
+    "allowedHandoff": "Only a fresh redacted output may be handed off after an explicit Share or prepared-output save action. Receiver behavior is not inferred."
+  },
+  "credentialsStoredInGit": false,
+  "tagRule": "Create v1.0.0 only from the release-manifest commit after intended iOS and Android cohort builds are accepted; never tag this planned record as a completed release."
+}

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "documentType": "google-play-listing-metadata",
+  "platform": "Google Play",
+  "preparationStatus": "Prepared listing metadata only; it is not evidence of an upload, review, acceptance, or publication.",
+  "app": {
+    "name": "Screenshot Shield",
+    "packageId": "io.github.youngsplace.screenshotshield",
+    "version": "1.0.0",
+    "publicBaseUrl": "https://youngsplace.github.io/screenshot-shield/"
+  },
+  "globalContact": {
+    "privacyPolicyUrl": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=en",
+    "supportWebsiteUrl": "https://youngsplace.github.io/screenshot-shield/support.html?lang=en"
+  },
+  "playLimits": {
+    "titleMaxCharacters": 30,
+    "shortDescriptionMaxCharacters": 80,
+    "fullDescriptionMaxCharacters": 4000,
+    "releaseNotesMaxCharacters": 500
+  },
+  "locales": {
+    "ko-KR": {
+      "title": "Screenshot Shield",
+      "shortDescription": "기기 안에서 스크린샷을 검토하고 민감한 부분을 가리세요.",
+      "fullDescription": "Screenshot Shield는 스크린샷을 기기 안에서 검토하고 민감한 부분을 직접 가리도록 돕습니다.\n\n사진 또는 파일에서 이미지를 선택한 뒤 가릴 영역을 추가하고, 이동하거나 크기를 조절하거나 삭제하세요. 최종 미리보기를 수동으로 검토한 후 새 PNG 또는 JPEG 결과물을 준비할 수 있습니다.\n\n원본 바이트와 메타데이터를 재사용하지 않고 새 결과물을 만듭니다. 계정, 광고 또는 분석 기능이 없으며, 앱은 백엔드로 이미지를 업로드하지 않습니다.\n\n준비된 새 가림 결과물만 사용자가 명시적으로 공유를 선택할 때 Android 공유 시트로 전달됩니다. 선택한 대상은 자체 정책에 따라 파일을 저장하거나 업로드할 수 있습니다. 수신 성공, 취소 또는 대상의 보관·삭제에 대해서는 보장하지 않습니다.",
+      "releaseNotes": "1.0.0: 기기 내 스크린샷 검토, 수동 가리기, 새 PNG/JPEG 출력 및 명시적 공유를 제공합니다.",
+      "privacyPolicyUrl": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=ko",
+      "supportContactUrl": "https://youngsplace.github.io/screenshot-shield/support.html?lang=ko",
+      "websiteUrl": "https://youngsplace.github.io/screenshot-shield/"
+    },
+    "en-US": {
+      "title": "Screenshot Shield",
+      "shortDescription": "Review screenshots on your device and redact sensitive areas.",
+      "fullDescription": "Screenshot Shield helps you review screenshots on your device and manually redact sensitive areas.\n\nChoose an image from Photos or Files, then add, move, resize, or delete redaction areas. Manually review the finished preview before preparing a fresh PNG or JPEG output.\n\nThe app creates a new output rather than reusing the original image bytes or metadata. It has no account, ads, or analytics, and it does not upload images to a backend.\n\nOnly a freshly redacted output is handed to the Android share sheet after you explicitly choose Share. A destination you choose may store or upload that file under its own policy. Screenshot Shield does not guarantee receiver success, cancellation, or a destination's retention or deletion behavior.",
+      "releaseNotes": "1.0.0: On-device review, manual redaction, fresh PNG/JPEG output, and explicit sharing.",
+      "privacyPolicyUrl": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=en",
+      "supportContactUrl": "https://youngsplace.github.io/screenshot-shield/support.html?lang=en",
+      "websiteUrl": "https://youngsplace.github.io/screenshot-shield/"
+    },
+    "zh-CN": {
+      "title": "Screenshot Shield",
+      "shortDescription": "在设备上审阅截图并遮盖敏感内容。",
+      "fullDescription": "Screenshot Shield 可帮助你在设备上审阅截图，并手动遮盖敏感内容。\n\n从照片或文件中选择图片后，可以添加、移动、调整大小或删除遮盖区域。请手动审阅完成后的预览，再准备全新的 PNG 或 JPEG 输出。\n\n应用会创建新的输出，不会复用原始图片字节或元数据。它没有账户、广告或分析功能，也不会将图片上传到后端。\n\n只有在你明确选择“分享”后，全新遮盖后的输出才会交给 Android 分享面板。你选择的目标可能会依照其自身政策存储或上传该文件。Screenshot Shield 不保证接收方成功、取消状态，或目标对文件的保留或删除行为。",
+      "releaseNotes": "1.0.0：提供设备内审阅、手动遮盖、全新的 PNG/JPEG 输出和明确的分享操作。",
+      "privacyPolicyUrl": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=zh-CN",
+      "supportContactUrl": "https://youngsplace.github.io/screenshot-shield/support.html?lang=zh-CN",
+      "websiteUrl": "https://youngsplace.github.io/screenshot-shield/"
+    }
+  }
+}

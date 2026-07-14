@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 2,
+  "documentType": "internal-cohort-evidence-template",
+  "isCompletedEvidence": false,
+  "completionRule": "This unfilled template becomes evidence only when both independent platform records satisfy every threshold and reference real immutable evidence.",
+  "release": {
+    "version": "1.0.0",
+    "applicationName": "Screenshot Shield",
+    "iosBundleIdentifier": "io.github.youngsplace.screenshotshield",
+    "androidApplicationId": "io.github.youngsplace.screenshotshield",
+    "sourceCommit": null,
+    "releaseCommit": null
+  },
+  "globalRequirements": {
+    "minimumDurationHoursPerPlatform": 48,
+    "minimumCompletedRunsPerPlatform": 20,
+    "minimumDistinctNamedPhysicalDevicesPerPlatform": 3,
+    "syntheticDataOnly": true,
+    "maximumP0PerPlatform": 0,
+    "maximumP1PerPlatform": 0,
+    "maximumUnresolvedPrivacyWarningsPerPlatform": 0,
+    "flow": ["import", "redact", "prepare", "explicit Share or prepared-output save"],
+    "handoffRule": "Share must be explicitly initiated before a share-sheet destination can act. A prepared-output save is a separate explicit product action. Neither path proves receiver open, success, cancellation, retention, or deletion."
+  },
+  "platforms": {
+    "ios": {
+      "prerequisites": {
+        "toolchainAndPhysicalGateEvidence": null,
+        "unsignedCandidateEvidence": null,
+        "signedArtifactAndInspectionEvidence": null,
+        "storeProcessingEvidence": null
+      },
+      "cohort": {
+        "trackOrGroupName": null,
+        "membershipEvidence": null,
+        "startedAtUtc": null,
+        "completedAtUtc": null,
+        "durationHours": null,
+        "physicalDeviceNames": [],
+        "namedMinimumOrTargetDevices": [],
+        "completedRuns": null,
+        "runRecords": [],
+        "failureRecords": []
+      },
+      "issues": {
+        "p0Count": null,
+        "p1Count": null,
+        "unresolvedPrivacyWarningCount": null,
+        "issueEvidence": null
+      },
+      "goDecision": {
+        "decision": "pending",
+        "namedApprover": null,
+        "decidedAtUtc": null,
+        "evidence": null
+      }
+    },
+    "android": {
+      "prerequisites": {
+        "toolchainAndPhysicalGateEvidence": null,
+        "unsignedCandidateEvidence": null,
+        "signedArtifactAndInspectionEvidence": null,
+        "storeProcessingEvidence": null
+      },
+      "cohort": {
+        "trackOrGroupName": null,
+        "membershipEvidence": null,
+        "startedAtUtc": null,
+        "completedAtUtc": null,
+        "durationHours": null,
+        "physicalDeviceNames": [],
+        "namedMinimumOrTargetDevices": [],
+        "completedRuns": null,
+        "runRecords": [],
+        "failureRecords": []
+      },
+      "issues": {
+        "p0Count": null,
+        "p1Count": null,
+        "unresolvedPrivacyWarningCount": null,
+        "issueEvidence": null
+      },
+      "goDecision": {
+        "decision": "pending",
+        "namedApprover": null,
+        "decidedAtUtc": null,
+        "evidence": null
+      }
+    }
+  },
+  "runRecordSchema": {
+    "requiredFields": [
+      "timestampUtc",
+      "physicalDeviceName",
+      "syntheticInputCase",
+      "importResult",
+      "redactionResult",
+      "preparedOutputResult",
+      "explicitAction",
+      "observedAppResult"
+    ],
+    "allowedExplicitActions": ["Share", "prepared-output save"],
+    "receiverOutcome": "not inferred"
+  },
+  "artifactRule": "Every prerequisite reference must bind an exact source/release commit, artifact SHA-256, signing fingerprint where applicable, processing ID, and inspection evidence. Never include credential material.",
+  "platformIndependenceRule": "Cohort clocks, membership, devices, run counts, failures, issue counts, and GO decisions are per-platform and cannot be copied or shared."
+}

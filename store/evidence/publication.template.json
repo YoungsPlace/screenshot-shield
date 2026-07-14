@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 2,
+  "documentType": "publication-evidence-template",
+  "isCompletedEvidence": false,
+  "completionRule": "This unfilled template is not signing, upload, review, publication, availability, observation, or rollback evidence. Each platform closes independently from real immutable records.",
+  "release": {
+    "tag": "v1.0.0",
+    "version": "1.0.0",
+    "applicationName": "Screenshot Shield",
+    "iosBundleIdentifier": "io.github.youngsplace.screenshotshield",
+    "androidApplicationId": "io.github.youngsplace.screenshotshield",
+    "sourceCommit": null,
+    "releaseCommit": null
+  },
+  "requirements": {
+    "minimumCohortHoursPerPlatform": 48,
+    "minimumSyntheticRunsPerPlatform": 20,
+    "minimumNamedPhysicalDevicesPerPlatform": 3,
+    "minimumPublicObservationHoursPerPlatform": 72,
+    "version100PercentageRollout": "prohibited",
+    "automaticPublication": false
+  },
+  "platforms": {
+    "ios": {
+      "counter": { "name": "CFBundleVersion", "value": null, "evidence": null },
+      "artifacts": {
+        "unsignedCandidate": {
+          "sourceCommit": null,
+          "path": null,
+          "sha256": null,
+          "inspectionEvidence": null,
+          "toolchainEvidence": null,
+          "physicalDeviceEvidence": null
+        },
+        "signedDistribution": {
+          "derivedFromUnsignedSha256": null,
+          "path": null,
+          "sha256": null,
+          "signingFingerprintSha256": null,
+          "provisioningProfileUuid": null,
+          "inspectionEvidence": null
+        }
+      },
+      "storeProcessing": {
+        "signedArtifactSha256": null,
+        "buildId": null,
+        "uploadTimestampUtc": null,
+        "processingCompletedAtUtc": null,
+        "evidence": null
+      },
+      "cohortEvidence": null,
+      "gateDecisions": {
+        "physicalToolchain": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        },
+        "protectedSigning": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        },
+        "uploadProcessing": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        },
+        "cohort": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        },
+        "review": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        },
+        "publication": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        }
+      },
+      "review": {
+        "submissionId": null,
+        "decision": "pending",
+        "decidedAtUtc": null,
+        "evidence": null
+      },
+      "publication": {
+        "territories": [],
+        "percentageRollout": null,
+        "consoleEvidence": null,
+        "cleanInstallDevice": null,
+        "cleanInstallEvidence": null
+      },
+      "observation": {
+        "owner": null,
+        "startedAtUtc": null,
+        "checkpoints": {
+          "hour0": {
+            "status": "pending",
+            "checkedAtUtc": null,
+            "evidence": null,
+            "incidents": [],
+            "disposition": null
+          },
+          "hour24": {
+            "status": "pending",
+            "checkedAtUtc": null,
+            "evidence": null,
+            "incidents": [],
+            "disposition": null
+          },
+          "hour48": {
+            "status": "pending",
+            "checkedAtUtc": null,
+            "evidence": null,
+            "incidents": [],
+            "disposition": null
+          },
+          "hour72": {
+            "status": "pending",
+            "checkedAtUtc": null,
+            "evidence": null,
+            "incidents": [],
+            "disposition": null
+          }
+        },
+        "completedAtUtc": null,
+        "finalDisposition": null,
+        "closureEvidence": null
+      },
+      "rollback": {
+        "readiness": {
+          "verified": false,
+          "removalProcedureEvidence": null,
+          "higherBuildPlanEvidence": null
+        },
+        "execution": {
+          "required": false,
+          "executed": false,
+          "removalReceipt": null,
+          "executedAtUtc": null,
+          "actor": null
+        },
+        "remediation": {
+          "required": false,
+          "higherBuildCounter": null,
+          "artifactEvidence": null,
+          "storeEvidence": null
+        }
+      }
+    },
+    "android": {
+      "counter": { "name": "versionCode", "value": null, "evidence": null },
+      "artifacts": {
+        "unsignedCandidate": {
+          "sourceCommit": null,
+          "path": null,
+          "sha256": null,
+          "inspectionEvidence": null,
+          "toolchainEvidence": null,
+          "physicalDeviceEvidence": null
+        },
+        "signedDistribution": {
+          "derivedFromUnsignedSha256": null,
+          "path": null,
+          "sha256": null,
+          "signingFingerprintSha256": null,
+          "inspectionEvidence": null
+        }
+      },
+      "storeProcessing": {
+        "signedArtifactSha256": null,
+        "buildId": null,
+        "uploadTimestampUtc": null,
+        "processingCompletedAtUtc": null,
+        "evidence": null
+      },
+      "cohortEvidence": null,
+      "gateDecisions": {
+        "physicalToolchain": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        },
+        "protectedSigning": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        },
+        "uploadProcessing": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        },
+        "cohort": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        },
+        "review": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        },
+        "publication": {
+          "decision": "pending",
+          "namedApprover": null,
+          "decidedAtUtc": null,
+          "evidence": null
+        }
+      },
+      "review": {
+        "submissionId": null,
+        "decision": "pending",
+        "decidedAtUtc": null,
+        "evidence": null
+      },
+      "publication": {
+        "countries": [],
+        "percentageRollout": null,
+        "consoleEvidence": null,
+        "cleanInstallDevice": null,
+        "cleanInstallEvidence": null
+      },
+      "observation": {
+        "owner": null,
+        "startedAtUtc": null,
+        "checkpoints": {
+          "hour0": {
+            "status": "pending",
+            "checkedAtUtc": null,
+            "evidence": null,
+            "incidents": [],
+            "disposition": null
+          },
+          "hour24": {
+            "status": "pending",
+            "checkedAtUtc": null,
+            "evidence": null,
+            "incidents": [],
+            "disposition": null
+          },
+          "hour48": {
+            "status": "pending",
+            "checkedAtUtc": null,
+            "evidence": null,
+            "incidents": [],
+            "disposition": null
+          },
+          "hour72": {
+            "status": "pending",
+            "checkedAtUtc": null,
+            "evidence": null,
+            "incidents": [],
+            "disposition": null
+          }
+        },
+        "completedAtUtc": null,
+        "finalDisposition": null,
+        "closureEvidence": null
+      },
+      "rollback": {
+        "readiness": {
+          "verified": false,
+          "removalProcedureEvidence": null,
+          "higherBuildPlanEvidence": null
+        },
+        "execution": {
+          "required": false,
+          "executed": false,
+          "removalReceipt": null,
+          "executedAtUtc": null,
+          "actor": null
+        },
+        "remediation": {
+          "required": false,
+          "higherBuildCounter": null,
+          "artifactEvidence": null,
+          "storeEvidence": null
+        }
+      }
+    }
+  },
+  "artifactLinkRule": "Store processing IDs must reference the exact signedDistribution SHA-256. Unsigned and signed artifacts keep separate immutable hashes and inspections; post-store byte equality is never claimed.",
+  "decisionRule": "Each physical/toolchain, signing, upload/processing, cohort, review, and publication gate requires its own named human, UTC decision timestamp, and evidence location per platform.",
+  "observationRule": "Each platform requires explicit 0/24/48/72-hour status, evidence, incidents, disposition, named owner, and final closure; missing is not passed.",
+  "rollbackRule": "Readiness is mandatory before publication. Execution receipts are required only when rollback is triggered. Installed users cannot be downgraded; remediation uses a higher independent platform counter.",
+  "credentialRule": "Never store private keys, keystores, provisioning profiles, passwords, tokens, or credentials in Git or these evidence files."
+}

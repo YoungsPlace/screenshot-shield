@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "documentType": "google-play-data-safety-answers",
+  "platform": "Google Play Data safety and App content",
+  "preparationStatus": "Prepared declaration only; it is not evidence of a Play Console submission, review, acceptance, or publication.",
+  "app": {
+    "name": "Screenshot Shield",
+    "packageId": "io.github.youngsplace.screenshotshield",
+    "version": "1.0.0"
+  },
+  "globalUrls": {
+    "privacyPolicyUrl": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=en",
+    "supportWebsiteUrl": "https://youngsplace.github.io/screenshot-shield/support.html?lang=en"
+  },
+  "dataSafety": {
+    "collectsUserData": false,
+    "sharesUserData": false,
+    "specificUserActionException": {
+      "applies": true,
+      "description": "A freshly redacted output can be handed to an Android share-sheet destination only after the user explicitly chooses Share and chooses that destination. This user-initiated handoff is the specific-user-action exception; it is not background or app-controlled sharing."
+    },
+    "dataEncryptedInTransit": {
+      "applicable": false,
+      "reason": "The app does not collect or transmit user data itself, so no encryption-in-transit answer applies."
+    },
+    "hasAds": false,
+    "accountRequired": false,
+    "appAccess": "All functionality is available without an account, credentials, or other special access."
+  },
+  "privacyBoundary": {
+    "processing": "Redaction and review occur on-device.",
+    "appControlledCollectionOrSharing": false,
+    "backend": false,
+    "analytics": false,
+    "telemetry": false,
+    "crashReportingEgress": false,
+    "tracking": false,
+    "remoteOcr": false
+  },
+  "consoleVerification": "A named human must reconcile these answers with the final binary, permissions, dependencies, and Play Console screens before submission. Any mismatch is a hold."
+}

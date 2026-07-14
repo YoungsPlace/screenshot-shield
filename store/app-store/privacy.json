@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "documentType": "apple-app-privacy-answers",
+  "dataCollection": false,
+  "tracking": false,
+  "linkedDataTypes": [],
+  "unlinkedDataTypes": [],
+  "privacyChoicesUrl": "",
+  "privacyPolicyUrls": {
+    "ko": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=ko",
+    "en-US": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=en",
+    "zh-Hans": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=zh-CN"
+  }
+}

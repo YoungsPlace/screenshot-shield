@@ -37,7 +37,7 @@ The app ships one immutable web manifest and one mobile-web identity. Browser in
 
 ## Availability and boundaries
 
-The availability claimed here is the GitHub Pages web service above. iOS and Android native apps are planned separately; this repository does not claim a published App Store or Google Play release without device, signing, review, and store-availability evidence.
+The availability claimed here is the GitHub Pages web service above. This repository now includes branded Capacitor iOS/Android Phase-0 projects and fail-closed policy checks, but native runtime/share fan-out is deliberately blocked by `npm run native:preflight` until the exact toolchain and real-device launch/rename/timestamp/kill-matrix evidence exists. Any native availability claim remains further blocked by signing, cohort, review, and store-availability evidence. No App Store or Google Play release is claimed.
 
 There is no web service worker and no web offline-support claim. A browser may keep its own resources according to its policies, but Screenshot Shield does not provide an offline editor or offline cache lifecycle.
 
@@ -69,9 +69,13 @@ npm run typecheck
 npm run lint
 npm run format:check
 npm test
+npm run native:policy
+npm run store:verify
 VITE_BASE_PATH=/screenshot-shield/ npm run build
 VITE_BASE_PATH=/screenshot-shield/ PLAYWRIGHT_BASE_URL=http://127.0.0.1:4173/screenshot-shield/ npm run e2e
 ```
+
+`npm run build:native` and `npm run cap:sync` both run the blocking native preflight first. They are expected to stop on a machine without the reviewed full Xcode/JDK/Android SDK, connected physical iOS and Android devices, immutable toolchain/SPM locks, and signed physical-gate attestation. Do not bypass that stop. Credential-free release preparation lives in [`docs/native-release-runbook.md`](./docs/native-release-runbook.md), [`docs/rollback-and-observation.md`](./docs/rollback-and-observation.md), and [`store/`](./store/).
 
 The project is a Vite/React static application. Tests use synthetic images and should verify behavior rather than relying on any external OCR service. Do not add a backend, upload relay, telemetry, remote OCR, service worker, web offline claim, Web Share Target, or image persistence without a separately approved privacy and lifecycle design.
 

@@ -35,6 +35,7 @@ const PHYSICAL_OUTCOMES = [
   'pickerViability',
   'capacitorStorageXmlSoleKey',
   'mergedManifestNoForbiddenPermissions',
+  'resolvedApplicationIdentifiers',
 ];
 
 function report(failures, category, message) {
@@ -668,6 +669,7 @@ function validateNativeLock(root, failures) {
     'platformToolsRevision',
     'emulatorRevision',
     'systemImage',
+    'systemImageTag',
     'systemImageRevision',
     'abi',
     'deviceProfile',
@@ -1323,18 +1325,53 @@ function compareAndroidSdkLock(lock, sdk, failures) {
     }
   }
 
+  const platformPath = join(sdk.root, `platforms/android-${expected.platformApi}`);
+  const buildToolsPath = join(sdk.root, `build-tools/${expected.buildToolsVersion}`);
+  for (const path of [
+    join(platformPath, 'android.jar'),
+    join(buildToolsPath, 'aapt2'),
+    join(buildToolsPath, 'zipalign'),
+    join(buildToolsPath, 'apksigner'),
+    join(sdk.root, 'platform-tools/adb'),
+    join(sdk.root, 'emulator/emulator'),
+  ]) {
+    if (!regularFile(path)) {
+      report(failures, 'Toolchain', `Locked Android SDK artifact is missing: ${path}.`);
+    }
+  }
+
   const systemImagePath = resolve(sdk.root, expected.systemImage);
   const relativeImage = relative(sdk.root, systemImagePath);
+  const exactSystemImage = `system-images/android-${expected.platformApi}/${expected.systemImageTag}/${expected.abi}`;
   if (
     relativeImage.startsWith(`..${sep}`) ||
     isAbsolute(relativeImage) ||
     !relativeImage.endsWith(expected.abi) ||
-    !regularFile(join(systemImagePath, 'source.properties'))
+    expected.systemImage !== exactSystemImage ||
+    !regularFile(join(systemImagePath, 'source.properties')) ||
+    !regularFile(join(systemImagePath, 'system.img')) ||
+    !regularFile(join(systemImagePath, 'ramdisk.img')) ||
+    !['kernel-ranchu', 'kernel-ranchu-64'].some((name) => regularFile(join(systemImagePath, name)))
   ) {
     report(
       failures,
       'Toolchain',
       'Android SDK systemImage must be a complete locked package under the SDK root with the locked ABI.',
+    );
+  }
+
+  const emulatorList = command(join(sdk.root, 'emulator/emulator'), ['-list-avds'], process.cwd());
+  if (
+    !emulatorList.ok ||
+    !emulatorList.rawOutput
+      .split(/\r?\n/)
+      .map((value) => value.trim())
+      .includes(expected.deviceProfile)
+  ) {
+    report(
+      failures,
+      'Toolchain',
+      `Android emulator device profile ${expected.deviceProfile} is not installed.`,
     );
   }
   if (lock.adb.platformToolsRevision !== expected.platformToolsRevision) {

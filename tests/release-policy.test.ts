@@ -118,6 +118,7 @@ describe('release and privacy guardrails', () => {
       'npm test',
       'npm run build',
       'npm run native:policy',
+      'npm run store:verify',
     ]) {
       expect(ci).toContain(command);
       expect(deploy).toContain(command);

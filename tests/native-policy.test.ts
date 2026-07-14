@@ -209,6 +209,32 @@ const config = {`,
     );
   });
 
+  it('rejects side-effect imports in Capacitor configuration', () => {
+    const root = fixture();
+    const config = join(root, 'capacitor.config.ts');
+    writeFileSync(config, `import '@capacitor/core';\n${readFileSync(config, 'utf8')}`);
+
+    const result = policy(root);
+    expect(result.status).toBe(1);
+    expect(output(result)).toContain('explicit type-only import from @capacitor/cli');
+  });
+
+  it('rejects native runtime or share fan-out before physical attestation', () => {
+    const root = fixture();
+    const sourceDirectory = join(root, 'src/platform');
+    mkdirSync(sourceDirectory, { recursive: true });
+    writeFileSync(
+      join(sourceDirectory, 'nativeShareAdapter.ts'),
+      "import { Share } from '@capacitor/share';\nexport const share = Share;\n",
+    );
+
+    const result = policy(root);
+    expect(result.status).toBe(1);
+    expect(output(result)).toContain(
+      'Phase-0 forbids Capacitor runtime/share fan-out before the physical attestation',
+    );
+  });
+
   it('rejects quoted or inline action references in an additional workflow', () => {
     const root = fixture();
     const workflow = join(root, '.github/workflows/unpinned.yml');
@@ -292,14 +318,14 @@ const config = {`,
       project,
       readFileSync(project, 'utf8').replace(
         'PRODUCT_BUNDLE_IDENTIFIER = io.github.youngsplace.screenshotshield;',
-        'PRODUCT_BUNDLE_IDENTIFIER = io.github.youngsplace.screenshotshield.preview;',
+        'PRODUCT_BUNDLE_IDENTIFIER = io.github.youngsplace.screenshotshield;\n\t\t\t\tPRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*] = io.github.youngsplace.screenshotshield.preview;',
       ),
     );
 
     const result = policy(root);
     expect(result.status).toBe(1);
-    expect(output(result)).toContain('with no variant suffixes');
-    expect(output(result)).toContain('Every iOS project and xcconfig bundle identifier');
+    expect(output(result)).toContain('with no variant overrides');
+    expect(output(result)).toContain('conditional overrides are forbidden');
   });
 
   it('rejects Gradle wrapper distribution URL and checksum drift', () => {
@@ -324,16 +350,20 @@ const config = {`,
     expect(policy(checksumRoot).status).toBe(1);
   });
 
-  it('rejects an Android Google Services configuration file', () => {
+  it('rejects Google Services configuration and version-catalog aliases', () => {
     const root = fixture();
     const googleServices = join(root, 'android/app/google-services.json');
 
     writeFileSync(googleServices, '{}\n');
+    writeFileSync(
+      join(root, 'android/gradle/libs.versions.toml'),
+      '[plugins]\ngoogle-services = { id = "com.google.gms.google-services", version = "4.4.4" }\n',
+    );
 
     const result = policy(root);
     expect(result.status).toBe(1);
     expect(output(result)).toContain(
-      'Android build must not include Google Services tooling or configuration.',
+      'Android build inputs must not include Google Services, Firebase, Play Services, Crashlytics, or variant configuration.',
     );
   });
 
@@ -384,7 +414,7 @@ const config = {`,
       'package.json must pin @capacitor/core exactly to 8.4.1; found ^8.4.1.',
     );
     expect(output(result)).toContain(
-      'package.json script cap:sync must be ./node_modules/.bin/capacitor sync.',
+      'package.json script cap:sync must be npm run native:preflight && ./node_modules/.bin/capacitor sync.',
     );
   });
 });

@@ -23,8 +23,8 @@ const CAPACITOR_PINS = {
   '@capacitor/ios': '8.4.1',
 };
 const EXPECTED_SCRIPTS = {
-  'build:native': 'VITE_BASE_PATH=./ npm run build',
-  'cap:sync': './node_modules/.bin/capacitor sync',
+  'build:native': 'npm run native:preflight && VITE_BASE_PATH=./ npm run build',
+  'cap:sync': 'npm run native:preflight && ./node_modules/.bin/capacitor sync',
   'native:policy': 'node script/verify-native-policy.mjs',
   'native:preflight': 'node script/native-preflight.mjs',
 };
@@ -157,7 +157,25 @@ function parseCapacitorConfig(source, errors) {
   let declarationCount = 0;
   let defaultExportCount = 0;
   for (const statement of sourceFile.statements) {
-    if (ts.isImportDeclaration(statement)) continue;
+    if (ts.isImportDeclaration(statement)) {
+      const clause = statement.importClause;
+      const bindings = clause?.namedBindings;
+      const exactTypeImport =
+        clause?.isTypeOnly === true &&
+        ts.isStringLiteral(statement.moduleSpecifier) &&
+        statement.moduleSpecifier.text === '@capacitor/cli' &&
+        Boolean(bindings) &&
+        ts.isNamedImports(bindings) &&
+        bindings.elements.length === 1 &&
+        bindings.elements[0].name.text === 'CapacitorConfig' &&
+        !bindings.elements[0].propertyName;
+      if (!exactTypeImport) {
+        errors.push(
+          'capacitor.config.ts may import only CapacitorConfig as an explicit type-only import from @capacitor/cli.',
+        );
+      }
+      continue;
+    }
 
     if (ts.isVariableStatement(statement)) {
       const isConst = (statement.declarationList.flags & ts.NodeFlags.Const) !== 0;
@@ -349,6 +367,27 @@ function filesUnder(directory, excludedNames = new Set()) {
   });
 }
 
+function verifyPhaseZeroNoFanout(root, errors) {
+  const sourceFiles = filesUnder(resolve(root, 'src')).filter((path) =>
+    /\.(?:[cm]?js|ts|tsx)$/.test(path),
+  );
+  const forbiddenFile = sourceFiles.find((path) =>
+    /native(?:AppRuntime|ShareAdapter|ShareConstructors|SharePresentation)\.(?:[cm]?js|ts|tsx)$/i.test(
+      path,
+    ),
+  );
+  const forbiddenImport = sourceFiles.find((path) =>
+    /(?:from\s*|import\s*\()\s*['"]@capacitor\/(?:app|browser|filesystem|preferences|share)['"]/.test(
+      readFileSync(path, 'utf8'),
+    ),
+  );
+  expect(
+    !forbiddenFile && !forbiddenImport,
+    'Phase-0 forbids Capacitor runtime/share fan-out before the physical attestation and locked toolchain pass.',
+    errors,
+  );
+}
+
 function verifyAndroid(root, errors) {
   const manifestSource = readRequired(root, 'android/app/src/main/AndroidManifest.xml', errors);
   const stringsSource = readRequired(root, 'android/app/src/main/res/values/strings.xml', errors);
@@ -532,32 +571,37 @@ function verifyAndroid(root, errors) {
     );
   }
 
+  const appGradleCode = appGradle.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
   const namespaceValues = Array.from(
-    appGradle.matchAll(/\bnamespace\s*=\s*['"]([^'"]+)['"]/g),
+    appGradleCode.matchAll(/\bnamespace\s*(?:=\s*)?['"]([^'"]+)['"]/g),
     (match) => match[1],
   );
   const applicationIdValues = Array.from(
-    appGradle.matchAll(/\bapplicationId\s+['"]([^'"]+)['"]/g),
+    appGradleCode.matchAll(/\bapplicationId\s*(?:=\s*)?['"]([^'"]+)['"]/g),
     (match) => match[1],
   );
   expect(
-    sameStrings(namespaceValues, [APP_ID]) &&
+    (appGradleCode.match(/\bnamespace\b/g) ?? []).length === 1 &&
+      (appGradleCode.match(/\bapplicationId\b/g) ?? []).length === 1 &&
+      sameStrings(namespaceValues, [APP_ID]) &&
       sameStrings(applicationIdValues, [APP_ID]) &&
-      !/\b(?:applicationIdSuffix|productFlavors|flavorDimensions)\b/.test(appGradle),
-    `Android must resolve exactly one namespace and applicationId to ${APP_ID} with no variant suffixes.`,
+      !/\b(?:applicationIdSuffix|productFlavors|flavorDimensions|variantFilter|applicationVariants|androidComponents|beforeVariants|onVariants)\b/.test(
+        appGradleCode,
+      ),
+    `Android must resolve exactly one namespace and applicationId to ${APP_ID} with no variant overrides.`,
     errors,
   );
 
   const androidPolicyFiles = filesUnder(resolve(root, 'android'), new Set(['.gradle', 'build']));
   const gradleSources = androidPolicyFiles
-    .filter((path) => /\.(?:gradle|gradle\.kts)$/.test(path))
+    .filter((path) => /\.(?:gradle|gradle\.kts|toml|properties)$/.test(path))
     .map((path) => readFileSync(path, 'utf8'))
     .join('\n');
   const googleConfigFiles = androidPolicyFiles.filter(
     (path) => path.endsWith('/google-services.json') || path.endsWith('\\google-services.json'),
   );
   expect(
-    !/com\.google\.gms:google-services|com\.google\.gms\.google-services|google-services\.json/.test(
+    !/com\.google\.gms:google-services|com\.google\.gms\.google-services|google-services\.json|com\.google\.firebase|firebase-|play-services|crashlytics/i.test(
       [
         rootGradle,
         appGradle,
@@ -568,7 +612,7 @@ function verifyAndroid(root, errors) {
         gradleSources,
       ].join('\n'),
     ) && googleConfigFiles.length === 0,
-    'Android build must not include Google Services tooling or configuration.',
+    'Android build inputs must not include Google Services, Firebase, Play Services, Crashlytics, or variant configuration.',
     errors,
   );
   const wrapperValues = new Map(
@@ -618,22 +662,28 @@ function verifyIos(root, errors) {
   }
 
   const projectBundleIds = Array.from(
-    project.matchAll(/PRODUCT_BUNDLE_IDENTIFIER\s*=\s*([^;]+);/g),
-    (match) => match[1].trim(),
+    project.matchAll(/(PRODUCT_BUNDLE_IDENTIFIER(?:\[[^\]]+\])?)\s*=\s*([^;]+);/g),
+    (match) => ({ key: match[1], value: match[2].trim() }),
   );
   const xcconfigBundleIds = filesUnder(resolve(root, 'ios'))
     .filter((path) => path.endsWith('.xcconfig'))
     .flatMap((path) =>
       Array.from(
-        readFileSync(path, 'utf8').matchAll(/^\s*PRODUCT_BUNDLE_IDENTIFIER\s*=\s*(\S+)\s*$/gm),
-        (match) => match[1],
+        readFileSync(path, 'utf8').matchAll(
+          /^\s*(PRODUCT_BUNDLE_IDENTIFIER(?:\[[^\]]+\])?)\s*=\s*(\S+)\s*$/gm,
+        ),
+        (match) => ({ key: match[1], value: match[2] }),
       ),
     );
   expect(
     projectBundleIds.length >= 2 &&
-      projectBundleIds.every((identifier) => identifier === APP_ID) &&
-      xcconfigBundleIds.every((identifier) => identifier === APP_ID),
-    `Every iOS project and xcconfig bundle identifier must be exactly ${APP_ID}.`,
+      projectBundleIds.every(
+        (entry) => entry.key === 'PRODUCT_BUNDLE_IDENTIFIER' && entry.value === APP_ID,
+      ) &&
+      xcconfigBundleIds.every(
+        (entry) => entry.key === 'PRODUCT_BUNDLE_IDENTIFIER' && entry.value === APP_ID,
+      ),
+    `Every unconditional iOS project and xcconfig bundle identifier must be exactly ${APP_ID}; conditional overrides are forbidden.`,
     errors,
   );
   expect(
@@ -897,6 +947,7 @@ export function verifyNativePolicy(root = process.cwd()) {
     }
   }
   verifyCapacitorConfig(readRequired(root, 'capacitor.config.ts', errors), errors);
+  verifyPhaseZeroNoFanout(root, errors);
   verifyAndroid(root, errors);
   verifyIos(root, errors);
   verifyOwnershipIgnores(root, errors);

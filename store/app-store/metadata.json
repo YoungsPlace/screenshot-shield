@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "platform": "apple-app-store",
+  "app": {
+    "name": "Screenshot Shield",
+    "bundleId": "io.github.youngsplace.screenshotshield",
+    "version": "1.0.0",
+    "primaryCategory": "Utilities"
+  },
+  "appleCharacterLimits": {
+    "name": 30,
+    "subtitle": 30,
+    "promotionalText": 170,
+    "keywords": 100,
+    "description": 4000,
+    "releaseNotes": 4000
+  },
+  "releaseEvidence": {
+    "status": "prepared-not-submitted",
+    "appStoreConnectAppId": null,
+    "signedArtifact": null,
+    "physicalDeviceCohortEvidence": null,
+    "testFlightBuild": null,
+    "appReviewSubmission": null,
+    "publicAvailabilityEvidence": null,
+    "rollbackReceipt": null
+  },
+  "locales": {
+    "ko": {
+      "appName": "Screenshot Shield",
+      "subtitle": "기기에서 스크린샷 가리기",
+      "promotionalText": "기기 안에서 민감한 영역을 가리세요. 자동 제안은 보조 수단이므로 최종 이미지를 검토한 뒤 새로 가린 결과만 명시적으로 공유하세요.",
+      "keywords": "스크린샷,개인정보,가리기,흐리기,로컬,이미지",
+      "description": "Screenshot Shield는 기기에서 스크린샷으로부터 새로 가린 이미지를 준비합니다. 시스템 파일 또는 사진 선택기로 이미지를 고른 뒤 가림 영역을 추가, 이동, 크기 조절하거나 제거할 수 있습니다.\n\n자동 제안은 기기에서 처리되며 검토를 돕는 보조 수단일 뿐입니다. 민감한 내용을 놓칠 수 있으므로 전달 전에 최종 이미지를 확인하고 수동으로 조정하세요.\n\n앱은 새 가림 결과를 만듭니다. 새로 가린 결과만 별도의 명시적 공유를 선택한 뒤 전달할 수 있습니다. 원본 이미지는 공유에 사용되지 않습니다. 받는 앱은 자체 정책에 따라 결과를 처리할 수 있으므로 공유 전에 검토하세요.\n\n로그인이나 계정은 없습니다. 이 목록은 준비된 메타데이터이며, 네이티브 이용 가능 여부는 독립적인 서명, 기기, 스토어 심사 및 공개 이용 가능성 증거가 확인될 때까지 대기 상태입니다.",
+      "releaseNotes": "버전 1.0.0\n초기 App Store 메타데이터를 준비했습니다. 네이티브 이용 가능 여부는 독립적인 서명, 기기, 스토어 심사 및 공개 이용 가능성 증거가 확인될 때까지 대기 상태입니다.",
+      "privacyPolicyUrl": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=ko",
+      "supportUrl": "https://youngsplace.github.io/screenshot-shield/support.html?lang=ko"
+    },
+    "en-US": {
+      "appName": "Screenshot Shield",
+      "subtitle": "Redact screenshots locally",
+      "promotionalText": "Redact sensitive areas on your device. Review suggestions, then share only a freshly redacted image.",
+      "keywords": "screenshot,redact,privacy,blur,markup,local,image",
+      "description": "Screenshot Shield helps you prepare a fresh redacted image from a screenshot on your device. Choose an image with the system Files or Photos picker, then add, move, resize, or remove redaction areas.\n\nAutomatic suggestions run locally and are only review aids. They can miss sensitive content, so inspect the final image and make manual adjustments before handoff.\n\nThe app creates a new redacted output. Only that freshly redacted output can be handed off, and only after you explicitly choose Share. The original image is not sent through sharing. A receiving app may handle the output under its own policy; review it before sharing.\n\nThere is no login or account. This listing is prepared metadata: native availability remains pending independent signing, device, store-review, and public-availability evidence.",
+      "releaseNotes": "Version 1.0.0\nInitial App Store metadata is prepared. Native availability remains pending independent signing, device, store-review, and public-availability evidence.",
+      "privacyPolicyUrl": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=en",
+      "supportUrl": "https://youngsplace.github.io/screenshot-shield/support.html?lang=en"
+    },
+    "zh-Hans": {
+      "appName": "Screenshot Shield",
+      "subtitle": "本地遮盖截图隐私信息",
+      "promotionalText": "在设备本地遮盖敏感区域。自动建议仅供参考；请检查最终图像，并且只明确共享新生成的遮盖结果。",
+      "keywords": "截图,隐私,遮盖,模糊,本地,图片",
+      "description": "Screenshot Shield 可在设备本地从截图准备一份新生成的遮盖图像。通过系统“文件”或“照片”选取图片后，可添加、移动、调整大小或删除遮盖区域。\n\n自动建议在设备本地运行，仅用于辅助检查。它们可能遗漏敏感内容；交付前请检查最终图像并手动调整。\n\n应用会创建新的遮盖输出。只有新生成的遮盖输出，且仅在您明确选择“共享”后，才可交给其他应用。原始图片不会通过共享交付。接收应用可能按其自身政策处理输出；共享前请再次检查。\n\n无需登录或账户。本条目是已准备的元数据：在有独立的签名、真机、商店审核和公开可用性证据前，原生应用可用性仍待证实。",
+      "releaseNotes": "版本 1.0.0\n已准备初始 App Store 元数据。在有独立的签名、真机、商店审核和公开可用性证据前，原生应用可用性仍待证实。",
+      "privacyPolicyUrl": "https://youngsplace.github.io/screenshot-shield/privacy.html?lang=zh-CN",
+      "supportUrl": "https://youngsplace.github.io/screenshot-shield/support.html?lang=zh-CN"
+    }
+  }
+}

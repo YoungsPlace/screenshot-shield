@@ -44,6 +44,9 @@ jobs:
       - name: Native policy
         run: npm run native:policy
 
+      - name: Store readiness
+        run: npm run store:verify
+
       - name: Build
         run: npm run build
         env:

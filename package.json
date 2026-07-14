@@ -7,10 +7,11 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
-    "build:native": "VITE_BASE_PATH=./ npm run build",
-    "cap:sync": "./node_modules/.bin/capacitor sync",
+    "build:native": "npm run native:preflight && VITE_BASE_PATH=./ npm run build",
+    "cap:sync": "npm run native:preflight && ./node_modules/.bin/capacitor sync",
     "native:policy": "node script/verify-native-policy.mjs",
     "native:preflight": "node script/native-preflight.mjs",
+    "store:verify": "vitest run tests/store-readiness.test.ts",
     "preview": "vite preview --host 127.0.0.1",
     "typecheck": "tsc -b",
     "test": "vitest run",
