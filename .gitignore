@@ -1,6 +1,7 @@
 node_modules/
 dist/
 coverage/
+.gjc/
 .vite/
 *.local
 .DS_Store
