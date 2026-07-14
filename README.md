@@ -26,7 +26,7 @@ The app is a Vite/React static application. Playwright tests start the productio
 
 ## Deployment
 
-GitHub Pages deployment is handled by `.github/workflows/pages.yml`.
+GitHub Pages deployment is handled by `.github/workflows/deploy.yml`.
 
 1. In GitHub repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**.
 2. Push to `main`.

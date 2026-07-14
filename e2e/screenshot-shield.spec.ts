@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 import { inflateSync, deflateSync } from 'node:zlib';
 
 const THIRD_PARTY_HOST_RE = /^(?!127\.0\.0\.1$|localhost$|\[::1\]$)/i;
@@ -71,7 +72,9 @@ function syntheticPng(width = 320, height = 180): Buffer {
 }
 
 function decodePng(buffer: Buffer): DecodedPng {
-  expect(buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))).toBe(true);
+  expect(
+    buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
+  ).toBe(true);
   let offset = 8;
   let width = 0;
   let height = 0;
@@ -121,17 +124,29 @@ async function editorCanvas(page: Page) {
   return canvas;
 }
 
-test('landing, detector copy, keyboard focus, mobile layout, and zero third-party egress', async ({ page, browserName }) => {
+test('landing, detector copy, keyboard focus, mobile layout, and zero third-party egress', async ({
+  page,
+  browserName,
+}) => {
   const thirdPartyRequests: string[] = [];
   page.on('request', (request) => {
     const url = new URL(request.url());
-    if (url.protocol.startsWith('http') && THIRD_PARTY_HOST_RE.test(url.hostname)) thirdPartyRequests.push(request.url());
+    if (url.protocol.startsWith('http') && THIRD_PARTY_HOST_RE.test(url.hostname)) {
+      thirdPartyRequests.push(request.url());
+    }
   });
 
   await page.goto('/');
   await expect(page.getByRole('heading', { name: /screenshot shield/i })).toBeVisible();
   await expect(page.getByText(/browser|local|same-origin|never leaves/i).first()).toBeVisible();
-  for (const detector of [/email/i, /phone/i, /payment|card/i, /IPv4|IP address/i, /URL|query/i, /token|long ID/i]) {
+  for (const detector of [
+    /email/i,
+    /phone/i,
+    /payment|card/i,
+    /IPv4|IP address/i,
+    /URL|query/i,
+    /token|long ID/i,
+  ]) {
     await expect(page.getByText(detector).first()).toBeVisible();
   }
 
@@ -164,17 +179,16 @@ test('import, manual redaction, and PNG export use a fresh opaque canvas', async
 
   const download = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: /export.*png|download.*png|png/i }).first().click(),
+    page
+      .getByRole('button', { name: /export.*png|download.*png|png/i })
+      .first()
+      .click(),
   ]).then(([file]) => file);
-  const path = await download.path();
-  expect(path, 'download path').toBeTruthy();
-  if (!path) return;
+  const downloadPath = await download.path();
+  expect(downloadPath, 'download path').toBeTruthy();
+  if (!downloadPath) return;
 
-  const decoded = decodePng(Buffer.from(await download.createReadStream().then(async (stream) => {
-    const chunks: Buffer[] = [];
-    for await (const chunk of stream) chunks.push(Buffer.from(chunk));
-    return Buffer.concat(chunks);
-  })));
+  const decoded = decodePng(await readFile(downloadPath));
   expect(decoded.width).toBe(320);
   expect(decoded.height).toBe(180);
 
@@ -182,7 +196,10 @@ test('import, manual redaction, and PNG export use a fresh opaque canvas', async
   const sampleY = Math.floor(decoded.height * 0.46);
   const offset = (sampleY * decoded.width + sampleX) * 4;
   expect(decoded.rgba[offset + 3], 'redaction alpha is opaque').toBe(255);
-  expect(decoded.rgba[offset] + decoded.rgba[offset + 1] + decoded.rgba[offset + 2], 'redaction pixel is covered').toBeLessThan(90);
+  expect(
+    decoded.rgba[offset] + decoded.rgba[offset + 1] + decoded.rgba[offset + 2],
+    'redaction pixel is covered',
+  ).toBeLessThan(90);
 });
 
 test('typed import failure is user-facing', async ({ page }) => {
@@ -194,5 +211,10 @@ test('typed import failure is user-facing', async ({ page }) => {
     mimeType: 'text/plain',
     buffer: Buffer.from('synthetic non-image fixture'),
   });
-  await expect(page.getByRole('alert').or(page.getByText(/unsupported|invalid|image type|png|jpeg|webp/i)).first()).toBeVisible();
+  await expect(
+    page
+      .getByRole('alert')
+      .or(page.getByText(/unsupported|invalid|image type|png|jpeg|webp/i))
+      .first(),
+  ).toBeVisible();
 });
