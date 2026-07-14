@@ -1,6 +1,7 @@
-import '../styles/marketing.css';
+import { useEffect, useState } from 'react';
 
-import { detectorItems, faqItems, workflowSteps } from './content';
+import '../styles/marketing.css';
+import { type Locale, detectInitialLocale, localeOptions, marketingCopy } from './i18n';
 import { RedactionDemo } from './RedactionDemo';
 
 export type MarketingLandingProps = {
@@ -9,19 +10,34 @@ export type MarketingLandingProps = {
 };
 
 export function MarketingLanding({ onStartEditing, appReady = true }: MarketingLandingProps) {
+  const [locale, setLocale] = useState<Locale>(detectInitialLocale);
+  const copy = marketingCopy[locale];
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+
   return (
     <div className="marketing-shell" id="top">
+      <nav className="lang-switcher" aria-label="Language / 언어 / 语言">
+        {localeOptions.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            className={locale === opt.value ? 'lang-btn lang-btn--active' : 'lang-btn'}
+            aria-pressed={locale === opt.value}
+            onClick={() => setLocale(opt.value)}
+          >
+            {opt.shortLabel}
+          </button>
+        ))}
+      </nav>
+
       <section className="hero-section" aria-labelledby="hero-title">
         <div className="hero-copy">
-          <p className="eyebrow">Private screenshot redaction</p>
-          <h1 id="hero-title">
-            Screenshot Shield — Clean screenshots before they leave your browser.
-          </h1>
-          <p className="hero-lede">
-            Screenshot Shield helps you paste or drop a screenshot, review likely sensitive text,
-            draw final redaction boxes, and export a newly rendered file without sending the image
-            to a server.
-          </p>
+          <p className="eyebrow">{copy.heroEyebrow}</p>
+          <h1 id="hero-title">{copy.heroHeadline}</h1>
+          <p className="hero-lede">{copy.heroLede}</p>
           <div className="hero-actions" aria-label="Primary actions">
             <button
               type="button"
@@ -29,65 +45,44 @@ export function MarketingLanding({ onStartEditing, appReady = true }: MarketingL
               onClick={onStartEditing}
               disabled={!appReady}
             >
-              {appReady ? 'Open the local editor' : 'Preparing editor'}
+              {appReady ? copy.ctaPrimary : copy.ctaLoading}
             </button>
             <a className="secondary-link" href="#privacy-proof">
-              See privacy model
+              {copy.ctaSecondary}
             </a>
           </div>
           <ul className="trust-strip" aria-label="Product safeguards">
-            <li>No upload endpoint</li>
-            <li>Manual fallback always available</li>
-            <li>Fresh-canvas export</li>
+            {copy.trust.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </div>
-        <RedactionDemo />
+        <RedactionDemo locale={locale} copy={copy} />
       </section>
 
       <section className="proof-panel" id="privacy-proof" aria-labelledby="privacy-title">
         <div>
-          <p className="eyebrow">Local-only proof</p>
-          <h2 id="privacy-title">Designed for short-lived, in-memory work.</h2>
+          <p className="eyebrow">{copy.proofEyebrow}</p>
+          <h2 id="privacy-title">{copy.proofHeadline}</h2>
         </div>
         <div className="proof-grid">
-          <article>
-            <span className="proof-icon" aria-hidden="true">
-              01
-            </span>
-            <h3>Same browser session</h3>
-            <p>
-              Imported images are decoded for editing and are not written to localStorage,
-              IndexedDB, or remote storage by the app.
-            </p>
-          </article>
-          <article>
-            <span className="proof-icon" aria-hidden="true">
-              02
-            </span>
-            <h3>Same-origin assets</h3>
-            <p>
-              Detection helpers are expected to load from the built site. Manual redaction remains
-              usable if OCR support is unavailable.
-            </p>
-          </article>
-          <article>
-            <span className="proof-icon" aria-hidden="true">
-              03
-            </span>
-            <h3>New export bytes</h3>
-            <p>
-              Downloads are rendered from a fresh canvas as PNG or JPEG, which avoids reusing the
-              original encoded file and its metadata.
-            </p>
-          </article>
+          {copy.proofItems.map((item) => (
+            <article key={item.num}>
+              <span className="proof-icon" aria-hidden="true">
+                {item.num}
+              </span>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </article>
+          ))}
         </div>
       </section>
 
       <section className="workflow-section" aria-labelledby="workflow-title">
-        <p className="eyebrow">Three-step workflow</p>
-        <h2 id="workflow-title">From risky capture to reviewed share copy.</h2>
+        <p className="eyebrow">{copy.workflowEyebrow}</p>
+        <h2 id="workflow-title">{copy.workflowHeadline}</h2>
         <div className="step-list">
-          {workflowSteps.map((step, index) => (
+          {copy.workflowSteps.map((step, index) => (
             <article className="step-card" key={step.title}>
               <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
               <h3>{step.title}</h3>
@@ -99,15 +94,12 @@ export function MarketingLanding({ onStartEditing, appReady = true }: MarketingL
 
       <section className="detectors-section" aria-labelledby="detectors-title">
         <div className="section-heading">
-          <p className="eyebrow">Suggestion coverage</p>
-          <h2 id="detectors-title">Detectors give you a review checklist, not a promise.</h2>
-          <p>
-            OCR-assisted suggestions focus on patterns commonly leaked in product, support, and
-            engineering screenshots. You stay in control of every region before export.
-          </p>
+          <p className="eyebrow">{copy.detectorsEyebrow}</p>
+          <h2 id="detectors-title">{copy.detectorsHeadline}</h2>
+          <p>{copy.detectorsLede}</p>
         </div>
         <div className="detector-grid">
-          {detectorItems.map((detector) => (
+          {copy.detectorItems.map((detector) => (
             <article className="detector-card" key={detector.label}>
               <h3>{detector.label}</h3>
               <code>{detector.example}</code>
@@ -119,27 +111,21 @@ export function MarketingLanding({ onStartEditing, appReady = true }: MarketingL
 
       <section className="limitations-section" aria-labelledby="limits-title">
         <div>
-          <p className="eyebrow">Honest limits</p>
-          <h2 id="limits-title">Reduces sharing risk; does not replace manual review.</h2>
+          <p className="eyebrow">{copy.limitsEyebrow}</p>
+          <h2 id="limits-title">{copy.limitsHeadline}</h2>
         </div>
         <ul className="limits-list">
-          <li>Low-contrast, rotated, cropped, or stylized text can evade OCR or pattern checks.</li>
-          <li>
-            Faces, diagrams, custom IDs, and visual secrets require manual rectangle redaction.
-          </li>
-          <li>
-            Pixelation is only safe when the export renderer applies irreversible blocks to a fresh
-            canvas.
-          </li>
-          <li>Always inspect the final preview before publishing or attaching a screenshot.</li>
+          {copy.limits.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
         </ul>
       </section>
 
       <section className="faq-section" aria-labelledby="faq-title">
-        <p className="eyebrow">FAQ</p>
-        <h2 id="faq-title">Privacy and workflow details.</h2>
+        <p className="eyebrow">{copy.faqEyebrow}</p>
+        <h2 id="faq-title">{copy.faqHeadline}</h2>
         <div className="faq-list">
-          {faqItems.map((item) => (
+          {copy.faqItems.map((item) => (
             <details key={item.question}>
               <summary>{item.question}</summary>
               <p>{item.answer}</p>
@@ -150,8 +136,8 @@ export function MarketingLanding({ onStartEditing, appReady = true }: MarketingL
 
       <section className="final-cta" aria-labelledby="final-cta-title">
         <div>
-          <p className="eyebrow">Ready when your screenshot is</p>
-          <h2 id="final-cta-title">Open the editor, mark what matters, export a safer copy.</h2>
+          <p className="eyebrow">{copy.finalEyebrow}</p>
+          <h2 id="final-cta-title">{copy.finalHeadline}</h2>
         </div>
         <button
           type="button"
@@ -159,7 +145,7 @@ export function MarketingLanding({ onStartEditing, appReady = true }: MarketingL
           onClick={onStartEditing}
           disabled={!appReady}
         >
-          Start redacting locally
+          {copy.finalCta}
         </button>
       </section>
     </div>
