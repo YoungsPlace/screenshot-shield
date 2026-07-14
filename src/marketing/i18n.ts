@@ -261,7 +261,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
     },
     finalCta: {
       eyebrow: 'Ready when your screenshot is',
-      heading: 'Open the editor, mark what matters, export a safer copy.',
+      heading: 'Open. Redact. Export a safer copy.',
       button: 'Start redacting locally',
     },
   },
