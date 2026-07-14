@@ -183,6 +183,7 @@ test('import, manual redaction, and PNG export use a fresh opaque canvas', async
   await editorCanvas(page);
   const drawingLayer = page.locator('.region-layer');
   await expect(drawingLayer, 'redaction drawing layer').toBeVisible();
+  await drawingLayer.scrollIntoViewIfNeeded();
   const box = await drawingLayer.boundingBox();
   expect(box, 'redaction layer bounds').toBeTruthy();
   if (!box) return;
@@ -190,9 +191,9 @@ test('import, manual redaction, and PNG export use a fresh opaque canvas', async
   const manualButton = page.getByRole('button', { name: /manual|rectangle|redact/i }).first();
   if (await manualButton.isVisible().catch(() => false)) await manualButton.click();
 
-  await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.36);
+  await drawingLayer.hover({ position: { x: box.width * 0.2, y: box.height * 0.36 } });
   await page.mouse.down();
-  await page.mouse.move(box.x + box.width * 0.82, box.y + box.height * 0.58);
+  await drawingLayer.hover({ position: { x: box.width * 0.82, y: box.height * 0.58 } });
   await page.mouse.up();
 
   await expect(page.getByRole('button', { name: /undo/i })).toBeEnabled();
