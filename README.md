@@ -1,6 +1,31 @@
+<div align="center">
+
 # Screenshot Shield
 
-Screenshot Shield is a privacy-first static web app for redacting sensitive information from screenshots in the browser. It is designed for local-only import, review, manual rectangle redaction, optional local OCR-assisted suggestions, and fresh-canvas PNG/JPEG export that does not reuse the original encoded file bytes.
+**Clean screenshots before they leave your browser.**
+
+[![CI](https://github.com/YoungsPlace/screenshot-shield/actions/workflows/ci.yml/badge.svg)](https://github.com/YoungsPlace/screenshot-shield/actions/workflows/ci.yml)
+[![Deploy](https://github.com/YoungsPlace/screenshot-shield/actions/workflows/deploy.yml/badge.svg)](https://github.com/YoungsPlace/screenshot-shield/actions/workflows/deploy.yml)
+
+[**Open the live editor**](https://youngsplace.github.io/screenshot-shield/) · English · 한국어 · 中文
+
+<img src="./public/social-card.svg" alt="Screenshot Shield before and after redaction preview" width="900" />
+
+</div>
+
+Screenshot Shield is a privacy-first, local-only web app for removing sensitive information from screenshots. Paste or drop an image, review detection suggestions, draw final redaction regions, and export a newly rendered PNG or JPEG without uploading the source image.
+
+> **한국어** — 스크린샷을 서버에 올리지 않고 브라우저 안에서 민감한 정보를 가리고 새 파일로 내보냅니다.
+>
+> **简体中文** — 无需上传截图，即可在浏览器本地遮盖敏感信息并导出全新文件。
+
+## Launch highlights
+
+- Visual before/after product demo designed for SNS and Threads sharing.
+- Complete English, Korean, and Simplified Chinese marketing experience.
+- No upload endpoint, analytics, external fonts, or third-party runtime requests.
+- Responsive desktop and mobile layouts with keyboard and reduced-motion support.
+- The editor stays out of the way until the primary CTA opens it.
 
 ## Product goals
 
@@ -36,14 +61,13 @@ Vite must be configured with a repository-subpath-safe base path for production 
 
 ## Verification scope
 
-Lane C verification covers:
+The current release gate runs 69 unit/component checks and 17 Playwright scenarios across desktop and mobile Chromium. It verifies:
 
-- Import → manual redaction → export smoke coverage with synthetic screenshots.
-- Detector copy/pattern visibility for supported sensitive-data classes.
-- Keyboard focus and mobile viewport smoke checks.
-- Typed user-facing import failures.
-- Fresh-canvas export dimensions and opaque redaction pixel checks where browser APIs expose the download.
-- Runtime network egress assertions blocking third-party hosts after app load.
+- English, Korean, and Simplified Chinese switching, localized CTAs, and document language.
+- Import → manual redaction → fresh-canvas PNG/JPEG export with synthetic screenshots.
+- Detector coverage, typed import failures, keyboard focus, and reduced-motion behavior.
+- 390px and 1440px layouts without horizontal overflow.
+- Zero third-party runtime network requests after application load.
 
 ## Privacy model
 
