@@ -66,6 +66,47 @@ test('desktop landing (1440px) — readable, no overflow, local-only', async ({ 
   expect(thirdPartyRequests, 'desktop: third-party requests').toEqual([]);
 });
 
+test('marketing headlines stay balanced without narrow-column wrapping', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('./');
+  await page.getByRole('button', { name: 'EN', exact: true }).click();
+
+  const heroLineCount = await page.locator('.hero-section h1').evaluate((heading) => {
+    const styles = getComputedStyle(heading);
+    return Math.round(
+      heading.getBoundingClientRect().height / Number.parseFloat(styles.lineHeight),
+    );
+  });
+  expect(heroLineCount, 'desktop hero should not exceed four lines').toBeLessThanOrEqual(4);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  const sectionHeadings = page.locator(
+    '.proof-panel h2, .workflow-section > h2, .detectors-section h2, .limitations-section h2, .faq-section > h2, .final-cta h2',
+  );
+  const mobileMetrics = await sectionHeadings.evaluateAll((headings) =>
+    headings.map((heading) => {
+      const styles = getComputedStyle(heading);
+      const rect = heading.getBoundingClientRect();
+      return {
+        lineCount: Math.round(rect.height / Number.parseFloat(styles.lineHeight)),
+        width: rect.width,
+      };
+    }),
+  );
+
+  expect(mobileMetrics, 'all marketing section headings are rendered').toHaveLength(6);
+  for (const metric of mobileMetrics) {
+    expect(
+      metric.lineCount,
+      'mobile section heading should not exceed three lines',
+    ).toBeLessThanOrEqual(3);
+    expect(metric.width, 'mobile section heading should use the available column').toBeGreaterThan(
+      280,
+    );
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Language switcher — KO / EN / 中文 cycle updates document.lang and visible copy
 // ---------------------------------------------------------------------------

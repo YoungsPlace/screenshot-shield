@@ -107,7 +107,8 @@
   color: var(--shield-ink);
 }
 
-.lang-btn--active {
+.lang-btn--active,
+.lang-btn--active:hover {
   background: var(--shield-ink);
   border-color: var(--shield-ink);
   color: #ffffff;
@@ -127,11 +128,11 @@
 .hero-section {
   align-items: center;
   display: grid;
-  gap: clamp(28px, 4vw, 72px);
-  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+  gap: clamp(36px, 4vw, 64px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   isolation: isolate;
-  min-block-size: 92svh;
-  padding-block: clamp(48px, 7vw, 96px);
+  min-block-size: 88svh;
+  padding-block: clamp(48px, 6vw, 84px);
   position: relative;
 }
 
@@ -165,7 +166,7 @@
 
 .hero-copy {
   display: grid;
-  gap: 24px;
+  gap: 20px;
   position: relative;
   z-index: 1;
 }
@@ -186,19 +187,42 @@
   margin-block-start: 0;
 }
 
+.hero-section h1,
+.marketing-shell h2,
+.marketing-shell h3 {
+  text-wrap: balance;
+}
+
+.marketing-shell p,
+.marketing-shell li {
+  text-wrap: pretty;
+}
+
+.marketing-shell:lang(ko) h1,
+.marketing-shell:lang(ko) h2,
+.marketing-shell:lang(ko) h3 {
+  word-break: keep-all;
+}
+
+.marketing-shell:lang(zh) h1,
+.marketing-shell:lang(zh) h2,
+.marketing-shell:lang(zh) h3 {
+  line-break: strict;
+}
+
 .hero-section h1 {
-  font-size: clamp(3.15rem, 8vw, 6.8rem);
-  letter-spacing: -0.08em;
-  line-height: 0.88;
+  font-size: clamp(3.15rem, 6.6vw, 5.9rem);
+  letter-spacing: -0.065em;
+  line-height: 0.92;
   margin-block-end: 0;
-  max-inline-size: 10ch;
+  max-inline-size: 12ch;
 }
 
 .hero-lede {
   color: var(--shield-muted);
-  font-size: clamp(1.08rem, 1.8vw, 1.35rem);
-  line-height: 1.65;
-  max-inline-size: 64ch;
+  font-size: clamp(1.05rem, 1.6vw, 1.28rem);
+  line-height: 1.58;
+  max-inline-size: 60ch;
 }
 
 .hero-actions,
@@ -497,7 +521,7 @@
 .limitations-section,
 .faq-section,
 .final-cta {
-  padding-block: clamp(44px, 6vw, 76px);
+  padding-block: clamp(40px, 5.5vw, 68px);
 }
 
 .proof-panel,
@@ -512,11 +536,11 @@
 .limitations-section h2,
 .faq-section h2,
 .final-cta h2 {
-  font-size: clamp(2rem, 4vw, 3.8rem);
-  letter-spacing: -0.06em;
-  line-height: 0.98;
+  font-size: clamp(2rem, 3.6vw, 3.4rem);
+  letter-spacing: -0.05em;
+  line-height: 1;
   margin-block-end: 0;
-  max-inline-size: 12ch;
+  max-inline-size: 15ch;
 }
 
 .proof-grid,
@@ -586,7 +610,8 @@
 
 .marketing-shell h3 {
   font-size: 1.15rem;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
+  line-height: 1.18;
   margin-block-end: 10px;
 }
 
@@ -628,7 +653,7 @@
 }
 
 .step-card h3 {
-  max-inline-size: 12ch;
+  max-inline-size: 18ch;
   position: relative;
 }
 
@@ -810,6 +835,14 @@
     position: static;
   }
 
+  .hero-copy {
+    max-inline-size: 760px;
+  }
+
+  .hero-section h1 {
+    max-inline-size: 14ch;
+  }
+
   .proof-grid,
   .step-list {
     grid-template-columns: 1fr;
@@ -825,6 +858,24 @@
   .faq-section,
   .final-cta {
     inline-size: min(100% - 20px, 1180px);
+  }
+
+  .hero-section {
+    gap: 34px;
+    padding-block: 40px 52px;
+  }
+
+  .hero-copy {
+    gap: 18px;
+  }
+
+  .proof-panel,
+  .workflow-section,
+  .detectors-section,
+  .limitations-section,
+  .faq-section,
+  .final-cta {
+    padding-block: 36px;
   }
   .proof-grid,
   .step-list {
@@ -847,7 +898,37 @@
   }
 
   .hero-section h1 {
-    max-inline-size: 9ch;
+    font-size: clamp(2.8rem, 12vw, 3.2rem);
+    letter-spacing: -0.055em;
+    line-height: 0.94;
+    max-inline-size: 12ch;
+  }
+
+  .proof-panel h2,
+  .workflow-section h2,
+  .detectors-section h2,
+  .limitations-section h2,
+  .faq-section h2,
+  .final-cta h2 {
+    font-size: clamp(1.9rem, 8vw, 2.15rem);
+    letter-spacing: -0.04em;
+    line-height: 1.03;
+    max-inline-size: 100%;
+  }
+
+  .lang-switcher {
+    padding-inline: 8px;
+  }
+
+  .story-link {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .lang-btn {
+    padding-inline: 10px;
   }
 
   .demo-card__header,
