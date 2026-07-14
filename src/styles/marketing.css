@@ -916,10 +916,6 @@
     max-inline-size: 100%;
   }
 
-  .limitations-section h2 {
-    font-size: clamp(1.75rem, 7.2vw, 1.95rem);
-  }
-
   .proof-panel > div:first-child,
   .limitations-section > div:first-child,
   .final-cta > div:first-child {

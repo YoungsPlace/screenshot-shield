@@ -225,7 +225,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
     },
     limitations: {
       eyebrow: 'Honest limits',
-      heading: 'Reduces sharing risk; does not replace manual review.',
+      heading: 'Reduces risk. Manual review still matters.',
       items: [
         'Low-contrast, rotated, cropped, or stylized text can evade OCR or pattern checks.',
         'Faces, diagrams, custom IDs, and visual secrets require manual rectangle redaction.',
