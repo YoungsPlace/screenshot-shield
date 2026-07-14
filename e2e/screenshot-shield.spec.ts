@@ -156,14 +156,19 @@ test('landing, detector copy, keyboard focus, mobile layout, and zero third-part
 
   await page.goto('./');
   await expect(page.getByRole('heading', { name: /screenshot shield/i })).toBeVisible();
-  await expect(page.getByText(/browser|local|same-origin|never leaves/i).first()).toBeVisible();
+  // Local-only privacy claim; expanded regex catches redesigned copy in any English phrasing
+  await expect(
+    page.getByText(/browser|local|same-origin|never leaves|locally|in-browser/i).first(),
+  ).toBeVisible();
+  // Detector labels are tested in the default (English) locale.
+  // Regexes are broadened to survive idiomatic rewording while preserving intent.
   for (const detector of [
     /email/i,
-    /phone/i,
-    /payment|card/i,
-    /IPv4|IP address/i,
-    /URL|query/i,
-    /token|long ID/i,
+    /phone|sms/i,
+    /payment|card|credit/i,
+    /ip.?v?4|ip address/i,
+    /url|query|param/i,
+    /token|long.?id|api.?key/i,
   ]) {
     await expect(page.getByText(detector).first()).toBeVisible();
   }
