@@ -21,6 +21,25 @@ const textFiles = [
   'e2e/screenshot-shield.spec.ts',
 ] as const;
 
+const runtimeFiles = [
+  'index.html',
+  'public/launch.js',
+  'src/App.tsx',
+  'src/domain/image.ts',
+  'src/domain/redaction.ts',
+  'src/editor/ScreenshotEditor.tsx',
+  'src/marketing/i18n.ts',
+  'src/ocr/localOcrClient.ts',
+] as const;
+
+function workflowStep(source: string, name: string): string {
+  const marker = `      - name: ${name}`;
+  const start = source.indexOf(marker);
+  if (start < 0) return '';
+  const next = source.indexOf('\n      - name:', start + marker.length);
+  return source.slice(start, next < 0 ? source.length : next);
+}
+
 describe('release and privacy guardrails', () => {
   it('documents local-only processing without absolute detection promises', () => {
     const readme = readFileSync('README.md', 'utf8');
@@ -67,6 +86,13 @@ describe('release and privacy guardrails', () => {
     expect(combined).not.toMatch(/AKIA[0-9A-Z]{16}/);
   });
 
+  it('prohibits unowned persistence and filesystem APIs in runtime code', () => {
+    const runtime = runtimeFiles.map((file) => readFileSync(file, 'utf8')).join('\n');
+    expect(runtime).not.toMatch(
+      /document\.cookie|cookieStore|navigator\.storage|storage\.getDirectory|showSaveFilePicker|FileSystemFileHandle|indexedDB|sessionStorage|CacheStorage|caches\.|serviceWorker\.register|localStorage\.(?:removeItem|clear)/,
+    );
+  });
+
   it('CI and Pages workflows run strict verification gates', () => {
     const ci = readFileSync('.github/workflows/ci.yml', 'utf8');
     const deploy = readFileSync('.github/workflows/deploy.yml', 'utf8');
@@ -88,9 +114,15 @@ describe('release and privacy guardrails', () => {
     expect(deploy).toContain('chromium webkit');
     expect(ci).toContain('VITE_BASE_PATH: /screenshot-shield/');
     for (const workflow of [ci, deploy]) {
-      expect(workflow).toMatch(
-        /Install Playwright browsers[\s\S]*npx playwright install --with-deps chromium webkit[\s\S]*Playwright e2e[\s\S]*PLAYWRIGHT_BASE_URL: http:\/\/127\.0\.0\.1:4173\/screenshot-shield\//,
-      );
+      const installStep = workflowStep(workflow, 'Install Playwright browsers');
+      expect(installStep).toContain('run: npx playwright install --with-deps chromium webkit');
+      expect(installStep).not.toMatch(/\bif:\s*(?:false|\$\{\{\s*false\s*\}\})/);
+
+      const e2eStep = workflowStep(workflow, 'Playwright e2e');
+      expect(e2eStep).toContain('run: npm run e2e');
+      expect(e2eStep).toContain('VITE_BASE_PATH: /screenshot-shield/');
+      expect(e2eStep).toContain('PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173/screenshot-shield/');
+      expect(e2eStep).not.toMatch(/\bif:\s*(?:false|\$\{\{\s*false\s*\}\})/);
     }
     expect(playwright).toContain('`http://127.0.0.1:${port}/screenshot-shield/`');
     expect(playwright).toContain('/launch\\.mobile\\.spec\\.ts$/');

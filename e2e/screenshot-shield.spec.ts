@@ -404,10 +404,8 @@ test('prepared PNG is both downloaded and shared as the same fresh redacted file
   if (!downloadPath) return;
 
   const downloadedBytes = await readFile(downloadPath);
-  await expect(page.locator('html')).toHaveAttribute(
-    'data-shared-file-checksum',
-    byteChecksum(downloadedBytes),
-  );
+  const initialChecksum = byteChecksum(downloadedBytes);
+  await expect(page.locator('html')).toHaveAttribute('data-shared-file-checksum', initialChecksum);
   expect(
     downloadedBytes.equals(syntheticPng()),
     'prepared output must not reuse source bytes',
@@ -426,13 +424,23 @@ test('prepared PNG is both downloaded and shared as the same fresh redacted file
     'redaction pixel is covered',
   ).toBeLessThan(90);
 
-  await page.getByRole('button', { name: 'Move right' }).click();
+  const moveRightForRegeneration = page.getByRole('button', { name: 'Move right' });
+  for (let step = 0; step < 8; step += 1) {
+    await moveRightForRegeneration.click();
+  }
   await expect(page.getByRole('button', { name: 'Download or save' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeDisabled();
   await expect(page.getByText('Your redacted file is ready to share or save.')).toHaveCount(0);
+  const movedStyleLeft = await regionBox.evaluate((element: HTMLElement) =>
+    parseFloat(element.style.left),
+  );
+  expect(movedStyleLeft, 'moved redaction source position').toBeGreaterThan(regionStyle.left);
 
   await page.getByRole('button', { name: 'Prepare redacted file' }).click();
   await expect(page.getByText('Your redacted file is ready to share or save.')).toBeVisible();
+  await page.getByRole('button', { name: 'Share', exact: true }).click();
+  const movedChecksum = await page.locator('html').getAttribute('data-shared-file-checksum');
+  expect(movedChecksum, 'moved redaction checksum').toMatch(/^[0-9a-f]{8}$/);
 
   await page.locator('#format').selectOption('image/jpeg');
   await expect(page.getByRole('button', { name: 'Download or save' })).toBeDisabled();
@@ -440,6 +448,14 @@ test('prepared PNG is both downloaded and shared as the same fresh redacted file
 
   await page.getByRole('button', { name: 'Prepare redacted file' }).click();
   await expect(page.getByText('Your redacted file is ready to share or save.')).toBeVisible();
+  await page.getByRole('button', { name: 'Share', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-shared-file-type', 'image/jpeg');
+  await expect(page.locator('html')).toHaveAttribute(
+    'data-shared-file-name',
+    'screenshot-shield-redacted.jpg',
+  );
+  const jpegChecksum = await page.locator('html').getAttribute('data-shared-file-checksum');
+  expect(jpegChecksum, 'JPEG regeneration checksum').not.toBe(movedChecksum);
 
   await page
     .locator('input[type="file"]')
@@ -453,6 +469,30 @@ test('prepared PNG is both downloaded and shared as the same fresh redacted file
   await expect(page.getByRole('button', { name: 'Download or save' })).toBeDisabled();
   await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeDisabled();
   await expect(page.getByText('Your redacted file is ready to share or save.')).toHaveCount(0);
+
+  await page.locator('#format').selectOption('image/png');
+  await page.getByRole('button', { name: 'Add manual redaction' }).click();
+  await page.getByRole('button', { name: 'Prepare redacted file' }).click();
+  await expect(page.getByText('Your redacted file is ready to share or save.')).toBeVisible();
+
+  const replacementDownload = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: 'Download or save' }).click(),
+  ]).then(([file]) => file);
+  const replacementPath = await replacementDownload.path();
+  expect(replacementPath, 'replacement download path').toBeTruthy();
+  if (!replacementPath) return;
+  const replacementBytes = await readFile(replacementPath);
+  const replacementDecoded = decodePng(replacementBytes);
+  expect(replacementDecoded.width).toBe(240);
+  expect(replacementDecoded.height).toBe(160);
+
+  await page.getByRole('button', { name: 'Share', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute(
+    'data-shared-file-checksum',
+    byteChecksum(replacementBytes),
+  );
+  expect(byteChecksum(replacementBytes), 'replacement source checksum').not.toBe(jpegChecksum);
 
   const persistence = await page.evaluate(async () => ({
     activity:
@@ -495,6 +535,10 @@ const keyboardLocales = [
     remove: '선택한 영역 삭제',
     regionsList: '가리기 영역 목록',
     noRegions: '아직 가리기 영역이 없습니다.',
+    prepare: '가린 파일 준비',
+    prepared: '공유 또는 저장할 가린 파일이 준비되었습니다.',
+    download: '다운로드 또는 저장',
+    unsupported: 'PNG, JPEG 또는 WebP 이미지만 선택할 수 있습니다.',
   },
   {
     tag: 'en',
@@ -504,6 +548,10 @@ const keyboardLocales = [
     remove: 'Remove selected',
     regionsList: 'Redaction regions',
     noRegions: 'No redactions yet.',
+    prepare: 'Prepare redacted file',
+    prepared: 'Your redacted file is ready to share or save.',
+    download: 'Download or save',
+    unsupported: 'Select a PNG, JPEG, or WebP image.',
   },
   {
     tag: 'zh-CN',
@@ -513,6 +561,10 @@ const keyboardLocales = [
     remove: '删除所选区域',
     regionsList: '遮盖区域列表',
     noRegions: '尚未添加遮盖。',
+    prepare: '准备遮盖后的文件',
+    prepared: '遮盖后的文件已准备好，可分享或保存。',
+    download: '下载或保存',
+    unsupported: '请选择 PNG、JPEG 或 WebP 图片。',
   },
 ] as const;
 
@@ -550,12 +602,27 @@ for (const locale of keyboardLocales) {
       moved?.width ?? before.width,
     );
 
+    const prepare = page.getByRole('button', { name: locale.prepare });
+    await prepare.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByText(locale.prepared)).toBeVisible();
+    await expect(page.getByRole('button', { name: locale.download })).toBeEnabled();
+
     const remove = page.getByRole('button', { name: locale.remove });
     await remove.focus();
     await page.keyboard.press('Enter');
     await expect(page.getByRole('list', { name: locale.regionsList })).toContainText(
       locale.noRegions,
     );
+    await expect(prepare).toBeDisabled();
+    await expect(page.getByText(locale.prepared)).toHaveCount(0);
+
+    await fileInput.setInputFiles({
+      name: 'not-an-image.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from('synthetic invalid image'),
+    });
+    await expect(page.getByRole('alert')).toContainText(locale.unsupported);
   });
 }
 

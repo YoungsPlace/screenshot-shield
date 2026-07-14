@@ -36,6 +36,10 @@ async function expectPngAsset(
   expect(body.readUInt32BE(20), `${label} height`).toBe(expectedSize);
 }
 
+function expectPagesPath(page: Page): void {
+  expect(new URL(page.url()).pathname).toBe('/screenshot-shield/');
+}
+
 test('bare Korean root has exact public links and no third-party egress', async ({ page }) => {
   const thirdPartyRequests = trackThirdParty(page);
 
@@ -67,14 +71,17 @@ test('locale aliases, invalid, and duplicate values canonicalize', async ({ page
   await page.goto('./?lang=zh');
   await expect(page).toHaveURL(/\?lang=zh-CN$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  expectPagesPath(page);
 
   await page.goto('./?lang=fr');
   await expect(page).toHaveURL(/\?lang=ko$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
+  expectPagesPath(page);
 
   await page.goto('./?lang=en&lang=zh-CN');
   await expect(page).toHaveURL(/\?lang=ko$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
+  expectPagesPath(page);
 });
 
 test('locale navigation preserves browser history', async ({ page }) => {
@@ -82,14 +89,17 @@ test('locale navigation preserves browser history', async ({ page }) => {
   await page.getByRole('link', { name: '中文', exact: true }).click();
   await expect(page).toHaveURL(/\?lang=zh-CN$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  expectPagesPath(page);
 
   await page.goBack();
   await expect(page).toHaveURL(/\?lang=en$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  expectPagesPath(page);
 
   await page.goForward();
   await expect(page).toHaveURL(/\?lang=zh-CN$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  expectPagesPath(page);
 });
 
 test('installed editor restores locale and falls back when storage fails', async ({ page }) => {
@@ -375,6 +385,35 @@ test('every public privacy locale states the web-only local boundary', async ({ 
     await expect(article).toContainText(locale.analytics);
     await expect(article).toContainText(locale.native);
     await expect(article).toContainText(locale.offline);
+  }
+});
+
+test('public pages never claim offline or native-store availability', async ({ page }) => {
+  for (const path of [
+    './',
+    './launch.html',
+    './privacy.html?lang=ko',
+    './privacy.html?lang=en',
+    './privacy.html?lang=zh-CN',
+    './support.html?lang=ko',
+    './support.html?lang=en',
+    './support.html?lang=zh-CN',
+  ]) {
+    await page.goto(path);
+    const text = await page.locator('body').innerText();
+    expect(text).not.toMatch(
+      /\boffline[- ]ready\b|\bworks fully offline\b|\bnative apps? (?:is|are) (?:now )?available\b|\bdownload on the app store\b|\bget it on google play\b|오프라인 지원 앱|네이티브 앱이 출시되었습니다|原生应用现已发布|支持离线使用/,
+    );
+    const runtimeState = await page.evaluate(async () => ({
+      registrations:
+        'serviceWorker' in navigator
+          ? (await navigator.serviceWorker.getRegistrations()).map(
+              (registration) => registration.scope,
+            )
+          : [],
+      caches: typeof caches === 'undefined' ? [] : await caches.keys(),
+    }));
+    expect(runtimeState).toEqual({ registrations: [], caches: [] });
   }
 });
 
