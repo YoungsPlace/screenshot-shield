@@ -180,9 +180,11 @@ test('import, manual redaction, and PNG export use a fresh opaque canvas', async
   await page.goto('/');
   await importSyntheticScreenshot(page);
 
-  const canvas = await editorCanvas(page);
-  const box = await canvas.boundingBox();
-  expect(box, 'canvas bounds').toBeTruthy();
+  await editorCanvas(page);
+  const drawingLayer = page.locator('.region-layer');
+  await expect(drawingLayer, 'redaction drawing layer').toBeVisible();
+  const box = await drawingLayer.boundingBox();
+  expect(box, 'redaction layer bounds').toBeTruthy();
   if (!box) return;
 
   const manualButton = page.getByRole('button', { name: /manual|rectangle|redact/i }).first();
