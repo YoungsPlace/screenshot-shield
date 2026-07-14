@@ -160,9 +160,9 @@ async function drawManualRedaction(page: Page): Promise<void> {
   expect(box, 'redaction layer bounds').toBeTruthy();
   if (!box) throw new Error('The redaction layer has no bounds.');
 
-  await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.36);
+  await page.mouse.move(box.x + box.width * 0.1, box.y + box.height * 0.3);
   await page.mouse.down();
-  await page.mouse.move(box.x + box.width * 0.82, box.y + box.height * 0.58, { steps: 4 });
+  await page.mouse.move(box.x + box.width * 0.35, box.y + box.height * 0.45, { steps: 4 });
   await page.mouse.up();
 
   await expect(page.getByRole('button', { name: 'Undo' })).toBeEnabled();
@@ -439,8 +439,43 @@ test('prepared PNG is both downloaded and shared as the same fresh redacted file
   await page.getByRole('button', { name: 'Prepare redacted file' }).click();
   await expect(page.getByText('Your redacted file is ready to share or save.')).toBeVisible();
   await page.getByRole('button', { name: 'Share', exact: true }).click();
+  await expect
+    .poll(() => page.locator('html').getAttribute('data-shared-file-checksum'), {
+      message: 'moved redaction checksum',
+    })
+    .not.toBe(initialChecksum);
   const movedChecksum = await page.locator('html').getAttribute('data-shared-file-checksum');
-  expect(movedChecksum, 'moved redaction checksum').toMatch(/^[0-9a-f]{8}$/);
+  expect(movedChecksum).toBeTruthy();
+
+  await page.getByRole('button', { name: 'Make wider' }).click();
+  await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'Prepare redacted file' }).click();
+  await page.getByRole('button', { name: 'Share', exact: true }).click();
+  await expect
+    .poll(() => page.locator('html').getAttribute('data-shared-file-checksum'), {
+      message: 'resized redaction checksum',
+    })
+    .not.toBe(movedChecksum);
+  const resizedChecksum = await page.locator('html').getAttribute('data-shared-file-checksum');
+  expect(resizedChecksum).toBeTruthy();
+
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'Prepare redacted file' }).click();
+  await page.getByRole('button', { name: 'Share', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute(
+    'data-shared-file-checksum',
+    movedChecksum ?? '',
+  );
+
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeDisabled();
+  await page.getByRole('button', { name: 'Prepare redacted file' }).click();
+  await page.getByRole('button', { name: 'Share', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute(
+    'data-shared-file-checksum',
+    resizedChecksum ?? '',
+  );
 
   await page.locator('#format').selectOption('image/jpeg');
   await expect(page.getByRole('button', { name: 'Download or save' })).toBeDisabled();
@@ -455,7 +490,7 @@ test('prepared PNG is both downloaded and shared as the same fresh redacted file
     'screenshot-shield-redacted.jpg',
   );
   const jpegChecksum = await page.locator('html').getAttribute('data-shared-file-checksum');
-  expect(jpegChecksum, 'JPEG regeneration checksum').not.toBe(movedChecksum);
+  expect(jpegChecksum, 'JPEG regeneration checksum').not.toBe(resizedChecksum);
 
   await page
     .locator('input[type="file"]')
@@ -538,6 +573,8 @@ const keyboardLocales = [
     prepare: '가린 파일 준비',
     prepared: '공유 또는 저장할 가린 파일이 준비되었습니다.',
     download: '다운로드 또는 저장',
+    share: '공유',
+    shared: '공유가 완료되었습니다. 준비된 파일은 계속 다운로드하거나 저장할 수 있습니다.',
     unsupported: 'PNG, JPEG 또는 WebP 이미지만 선택할 수 있습니다.',
   },
   {
@@ -551,6 +588,8 @@ const keyboardLocales = [
     prepare: 'Prepare redacted file',
     prepared: 'Your redacted file is ready to share or save.',
     download: 'Download or save',
+    share: 'Share',
+    shared: 'Shared. The prepared file is still available to download or save.',
     unsupported: 'Select a PNG, JPEG, or WebP image.',
   },
   {
@@ -564,6 +603,8 @@ const keyboardLocales = [
     prepare: '准备遮盖后的文件',
     prepared: '遮盖后的文件已准备好，可分享或保存。',
     download: '下载或保存',
+    share: '分享',
+    shared: '已分享。准备好的文件仍可下载或保存。',
     unsupported: '请选择 PNG、JPEG 或 WebP 图片。',
   },
 ] as const;
@@ -572,6 +613,16 @@ for (const locale of keyboardLocales) {
   test(`keyboard users can complete manual redaction controls in ${locale.tag}`, async ({
     page,
   }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'canShare', {
+        configurable: true,
+        value: (data: { files?: File[] }) => Array.isArray(data.files) && data.files.length === 1,
+      });
+      Object.defineProperty(navigator, 'share', {
+        configurable: true,
+        value: async () => undefined,
+      });
+    });
     await page.goto(`./?view=editor&lang=${locale.tag}`);
     await importSyntheticScreenshot(page);
     const fileInput = page.locator('input[type="file"]').first();
@@ -607,6 +658,17 @@ for (const locale of keyboardLocales) {
     await page.keyboard.press('Enter');
     await expect(page.getByText(locale.prepared)).toBeVisible();
     await expect(page.getByRole('button', { name: locale.download })).toBeEnabled();
+
+    const localizedDownload = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByRole('button', { name: locale.download }).click(),
+    ]).then(([file]) => file);
+    expect(localizedDownload.suggestedFilename()).toBe('screenshot-shield-redacted.png');
+
+    const share = page.getByRole('button', { name: locale.share, exact: true });
+    await share.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByText(locale.shared)).toBeVisible();
 
     const remove = page.getByRole('button', { name: locale.remove });
     await remove.focus();

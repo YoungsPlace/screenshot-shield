@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 const textFiles = [
   'index.html',
@@ -21,16 +22,28 @@ const textFiles = [
   'e2e/screenshot-shield.spec.ts',
 ] as const;
 
+function sourceFilesUnder(directory: string): string[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    return entry.isDirectory() ? sourceFilesUnder(path) : [path];
+  });
+}
+
 const runtimeFiles = [
   'index.html',
-  'public/launch.js',
-  'src/App.tsx',
-  'src/domain/image.ts',
-  'src/domain/redaction.ts',
-  'src/editor/ScreenshotEditor.tsx',
-  'src/marketing/i18n.ts',
-  'src/ocr/localOcrClient.ts',
-] as const;
+  ...sourceFilesUnder('src').filter((file) => /\.(?:ts|tsx|[cm]?js)$/.test(file)),
+  ...sourceFilesUnder('public').filter((file) => /\.(?:html|[cm]?js)$/.test(file)),
+];
+
+function executableSource(file: string): string {
+  const source = readFileSync(file, 'utf8');
+  if (!file.endsWith('.html')) return source;
+
+  return Array.from(
+    source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi),
+    (match) => match[1],
+  ).join('\n');
+}
 
 function workflowStep(source: string, name: string): string {
   const marker = `      - name: ${name}`;
@@ -87,7 +100,7 @@ describe('release and privacy guardrails', () => {
   });
 
   it('prohibits unowned persistence and filesystem APIs in runtime code', () => {
-    const runtime = runtimeFiles.map((file) => readFileSync(file, 'utf8')).join('\n');
+    const runtime = runtimeFiles.map(executableSource).join('\n');
     expect(runtime).not.toMatch(
       /document\.cookie|cookieStore|navigator\.storage|storage\.getDirectory|showSaveFilePicker|FileSystemFileHandle|indexedDB|sessionStorage|CacheStorage|caches\.|serviceWorker\.register|localStorage\.(?:removeItem|clear)/,
     );
@@ -115,14 +128,16 @@ describe('release and privacy guardrails', () => {
     expect(ci).toContain('VITE_BASE_PATH: /screenshot-shield/');
     for (const workflow of [ci, deploy]) {
       const installStep = workflowStep(workflow, 'Install Playwright browsers');
-      expect(installStep).toContain('run: npx playwright install --with-deps chromium webkit');
-      expect(installStep).not.toMatch(/\bif:\s*(?:false|\$\{\{\s*false\s*\}\})/);
+      expect(installStep).toMatch(/^ {8}run: npx playwright install --with-deps chromium webkit$/m);
+      expect(installStep).not.toMatch(/^\s+(?:if|continue-on-error):/m);
 
       const e2eStep = workflowStep(workflow, 'Playwright e2e');
-      expect(e2eStep).toContain('run: npm run e2e');
-      expect(e2eStep).toContain('VITE_BASE_PATH: /screenshot-shield/');
-      expect(e2eStep).toContain('PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173/screenshot-shield/');
-      expect(e2eStep).not.toMatch(/\bif:\s*(?:false|\$\{\{\s*false\s*\}\})/);
+      expect(e2eStep).toMatch(/^ {8}run: npm run e2e$/m);
+      expect(e2eStep).toMatch(/^ {10}VITE_BASE_PATH: \/screenshot-shield\/$/m);
+      expect(e2eStep).toMatch(
+        /^ {10}PLAYWRIGHT_BASE_URL: http:\/\/127\.0\.0\.1:4173\/screenshot-shield\/$/m,
+      );
+      expect(e2eStep).not.toMatch(/^\s+(?:if|continue-on-error):/m);
     }
     expect(playwright).toContain('`http://127.0.0.1:${port}/screenshot-shield/`');
     expect(playwright).toContain('/launch\\.mobile\\.spec\\.ts$/');
