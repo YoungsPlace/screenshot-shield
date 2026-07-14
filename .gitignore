@@ -7,3 +7,9 @@ coverage/
 .DS_Store
 playwright-report/
 test-results/
+android/keystore.properties
+android/*.jks
+android/*.keystore
+ios/release.xcconfig
+ios/*.mobileprovision
+ios/*.p12

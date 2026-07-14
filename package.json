@@ -7,6 +7,10 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
+    "build:native": "VITE_BASE_PATH=./ npm run build",
+    "cap:sync": "./node_modules/.bin/capacitor sync",
+    "native:policy": "node script/verify-native-policy.mjs",
+    "native:preflight": "node script/native-preflight.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "typecheck": "tsc -b",
     "test": "vitest run",
@@ -17,6 +21,12 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@capacitor/app": "8.1.0",
+    "@capacitor/browser": "8.0.3",
+    "@capacitor/core": "8.4.1",
+    "@capacitor/filesystem": "8.1.2",
+    "@capacitor/preferences": "8.0.1",
+    "@capacitor/share": "8.0.1",
     "@vitejs/plugin-react": "latest",
     "react": "latest",
     "react-dom": "latest",
@@ -24,6 +34,9 @@
     "vite": "latest"
   },
   "devDependencies": {
+    "@capacitor/android": "8.4.1",
+    "@capacitor/cli": "8.4.1",
+    "@capacitor/ios": "8.4.1",
     "@eslint/js": "latest",
     "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "latest",
@@ -39,6 +52,7 @@
     "jsdom": "latest",
     "prettier": "latest",
     "typescript-eslint": "latest",
-    "vitest": "latest"
+    "vitest": "latest",
+    "yaml": "2.9.0"
   }
 }

@@ -5,9 +5,29 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'node_modules', '.gjc', 'playwright-report', 'test-results'] },
+  {
+    ignores: [
+      'dist',
+      'coverage',
+      'node_modules',
+      '.gjc',
+      'playwright-report',
+      'test-results',
+      'android/app/src/main/assets',
+      'android/capacitor-cordova-android-plugins',
+      'ios/App/App/public',
+      'ios/capacitor-cordova-ios-plugins',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    files: ['script/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      globals: globals.node,
+    },
+  },
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {

@@ -117,6 +117,7 @@ describe('release and privacy guardrails', () => {
       'npm run format:check',
       'npm test',
       'npm run build',
+      'npm run native:policy',
     ]) {
       expect(ci).toContain(command);
       expect(deploy).toContain(command);
@@ -144,6 +145,33 @@ describe('release and privacy guardrails', () => {
     expect(ci).toContain('npm run e2e');
     expect(deploy).toContain('actions/deploy-pages');
     expect(deploy).toContain('VITE_BASE_PATH: /screenshot-shield/');
+  });
+  it('pins every workflow action to the recorded immutable SHA', () => {
+    const lock = JSON.parse(readFileSync('.github/actions.lock.json', 'utf8')) as {
+      actions: Record<string, string>;
+    };
+    const workflows = [
+      readFileSync('.github/workflows/ci.yml', 'utf8'),
+      readFileSync('.github/workflows/deploy.yml', 'utf8'),
+    ].join('\n');
+    const usesLines = workflows.match(/^\s*uses:/gm) ?? [];
+    const pinned = Array.from(
+      workflows.matchAll(/^\s*uses:\s+([^@\s]+)@([0-9a-f]{40})\s+#\s+(v\d+)\s*$/gm),
+      (match) => ({
+        key: `${match[1]}@${match[3]}`,
+        sha: match[2],
+      }),
+    );
+
+    expect(pinned).toHaveLength(usesLines.length);
+    for (const entry of pinned) {
+      expect(lock.actions[entry.key], `missing or stale action lock for ${entry.key}`).toBe(
+        entry.sha,
+      );
+    }
+    expect([...new Set(pinned.map((entry) => entry.key))].sort()).toEqual(
+      Object.keys(lock.actions).sort(),
+    );
   });
 });
 

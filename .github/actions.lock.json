@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "resolvedAt": "2026-07-14T16:05:00Z",
+  "actions": {
+    "actions/checkout@v4": "34e114876b0b11c390a56381ad16ebd13914f8d5",
+    "actions/setup-node@v4": "49933ea5288caeca8642d1e84afbd3f7d6820020",
+    "actions/upload-artifact@v4": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+    "actions/configure-pages@v5": "983d7736d9b0ae728b81ab479565c72886d7745b",
+    "actions/upload-pages-artifact@v3": "56afc609e74202658d3ffba0e8f6dda462b719fa",
+    "actions/deploy-pages@v4": "d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e"
+  }
+}
