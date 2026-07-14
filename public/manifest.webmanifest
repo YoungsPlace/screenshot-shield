@@ -1,18 +1,32 @@
 {
+  "id": "/screenshot-shield/",
   "name": "Screenshot Shield",
-  "short_name": "Shield",
-  "description": "A local-first screenshot redaction editor that runs in the browser.",
-  "start_url": "/screenshot-shield/",
+  "short_name": "Screenshot Shield",
+  "description": "원본 스크린샷을 앱 서버에 업로드하지 않고 브라우저에서 민감한 정보를 가린 새 파일을 준비합니다.",
+  "lang": "ko",
+  "start_url": "/screenshot-shield/?view=editor&installed=1",
   "scope": "/screenshot-shield/",
   "display": "standalone",
   "background_color": "#fbf7ef",
   "theme_color": "#10131f",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

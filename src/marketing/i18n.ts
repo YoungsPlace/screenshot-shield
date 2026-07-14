@@ -1,20 +1,201 @@
-// Shared localization contract for the marketing landing page.
-// Lane A (MarketingLanding, RedactionDemo) consumes this; Lane B owns it.
+// Shared localization and URL contract for the marketing landing page.
 
 export type Locale = 'ko' | 'en' | 'zh';
+export type PublicLocale = 'ko' | 'en' | 'zh-CN';
+export type RouteMode = 'marketing' | 'editor' | 'embed';
+export type LocaleSource = 'missing' | 'canonical' | 'alias' | 'invalid' | 'duplicate';
+
+export type ParsedRoute = {
+  readonly locale: Locale;
+  readonly localeTag: PublicLocale;
+  readonly localeSource: LocaleSource;
+  readonly mode: RouteMode;
+  readonly installed: boolean;
+  readonly canonicalSearch: string;
+  readonly needsCanonicalization: boolean;
+};
+
+export type RouteBuildOptions = {
+  readonly mode?: RouteMode;
+  readonly installed?: boolean;
+  readonly localeTag?: PublicLocale;
+};
+
+export const installedLocaleStorageKey = 'screenshot-shield.locale';
 
 export const localeOptions: readonly { value: Locale; label: string; shortLabel: string }[] = [
   { value: 'ko', label: '한국어', shortLabel: 'KO' },
   { value: 'en', label: 'English', shortLabel: 'EN' },
   { value: 'zh', label: '中文', shortLabel: '中文' },
 ];
+export const applicationCopy: Record<Locale, { readonly skipToEditor: string }> = {
+  ko: { skipToEditor: '편집기로 건너뛰기' },
+  en: { skipToEditor: 'Skip to editor' },
+  zh: { skipToEditor: '跳转到编辑器' },
+};
 
+export const runtimeMetadata: Record<
+  Locale,
+  { readonly title: string; readonly description: string }
+> = {
+  ko: {
+    title: 'Screenshot Shield — 공유 전 스크린샷 가리기',
+    description:
+      '브라우저에서 스크린샷의 민감한 정보를 가리세요. 업로드나 서버, 추적 없이 OCR 보조 제안과 수동 가리개를 검토하고 새 이미지 파일로 내보냅니다.',
+  },
+  en: {
+    title: 'Screenshot Shield — Redact screenshots before sharing',
+    description:
+      'Redact sensitive screenshot details in your browser, review local suggestions, and export a freshly rendered image without uploads or tracking.',
+  },
+  zh: {
+    title: 'Screenshot Shield — 分享前遮盖截图',
+    description: '在浏览器中遮盖截图敏感信息，审查本地建议并导出全新渲染的图片，无需上传或追踪。',
+  },
+};
+
+export function toPublicLocale(locale: Locale): PublicLocale {
+  return locale === 'zh' ? 'zh-CN' : locale;
+}
+
+export function fromPublicLocale(locale: PublicLocale): Locale {
+  return locale === 'zh-CN' ? 'zh' : locale;
+}
+
+export function isPublicLocale(locale: string): locale is PublicLocale {
+  return locale === 'ko' || locale === 'en' || locale === 'zh-CN';
+}
+
+function isSingleValue(params: URLSearchParams, key: string, value: string): boolean {
+  const values = params.getAll(key);
+  return values.length === 1 && values[0] === value;
+}
+
+function parseLocale(
+  values: readonly string[],
+): Pick<ParsedRoute, 'locale' | 'localeTag' | 'localeSource'> {
+  if (values.length === 0) {
+    return { locale: 'ko', localeTag: 'ko', localeSource: 'missing' };
+  }
+
+  if (values.length !== 1) {
+    return { locale: 'ko', localeTag: 'ko', localeSource: 'duplicate' };
+  }
+
+  const [value] = values;
+  if (isPublicLocale(value)) {
+    return {
+      locale: fromPublicLocale(value),
+      localeTag: value,
+      localeSource: 'canonical',
+    };
+  }
+
+  if (value === 'zh') {
+    return { locale: 'zh', localeTag: 'zh-CN', localeSource: 'alias' };
+  }
+
+  return { locale: 'ko', localeTag: 'ko', localeSource: 'invalid' };
+}
+
+export function buildRouteSearch({
+  mode = 'marketing',
+  installed = false,
+  localeTag,
+}: RouteBuildOptions = {}): string {
+  const params = new URLSearchParams();
+
+  if (mode === 'embed') {
+    params.set('embed', 'editor');
+  } else if (mode === 'editor') {
+    params.set('view', 'editor');
+    if (installed) params.set('installed', '1');
+  }
+
+  if (localeTag) params.set('lang', localeTag);
+
+  const query = params.toString();
+  return query ? `?${query}` : '';
+}
+
+export function parseRoute(search: string): ParsedRoute {
+  const params = new URLSearchParams(search);
+  const locale = parseLocale(params.getAll('lang'));
+  const hasEmbeddedEditor = isSingleValue(params, 'embed', 'editor');
+  const hasEditorView = isSingleValue(params, 'view', 'editor');
+  const mode: RouteMode = hasEmbeddedEditor ? 'embed' : hasEditorView ? 'editor' : 'marketing';
+  const installed = mode === 'editor' && isSingleValue(params, 'installed', '1');
+  const canonicalSearch = buildRouteSearch({
+    mode,
+    installed,
+    localeTag: locale.localeSource === 'missing' ? undefined : locale.localeTag,
+  });
+
+  return {
+    ...locale,
+    mode,
+    installed,
+    canonicalSearch,
+    needsCanonicalization: search === '' ? canonicalSearch !== '' : search !== canonicalSearch,
+  };
+}
+export function normalizeRouteSearch(search: string): string {
+  return parseRoute(search).canonicalSearch;
+}
+
+export function isInstalledLocaleResolver(route: ParsedRoute): boolean {
+  return route.mode === 'editor' && route.installed && route.localeSource === 'missing';
+}
+
+export function isCanonicalExplicitLocale(route: ParsedRoute): boolean {
+  return route.localeSource === 'canonical';
+}
+
+export function buildLocaleHref(route: ParsedRoute, locale: Locale, hash = ''): string {
+  const mode = route.mode === 'editor' ? 'editor' : 'marketing';
+
+  return `${buildRouteSearch({
+    mode,
+    installed: mode === 'editor' && route.installed,
+    localeTag: toPublicLocale(locale),
+  })}${hash}`;
+}
+
+function getInstalledLocaleStorage(): Storage | null {
+  try {
+    if (typeof window === 'undefined') return null;
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
+
+export function readInstalledLocale(): PublicLocale {
+  try {
+    const locale = getInstalledLocaleStorage()?.getItem(installedLocaleStorageKey);
+    return locale !== null && locale !== undefined && isPublicLocale(locale) ? locale : 'ko';
+  } catch {
+    return 'ko';
+  }
+}
+
+export function writeInstalledLocale(locale: Locale): boolean {
+  const publicLocale = toPublicLocale(locale);
+  if (!isPublicLocale(publicLocale)) return false;
+
+  try {
+    const storage = getInstalledLocaleStorage();
+    if (!storage) return false;
+    storage.setItem(installedLocaleStorageKey, publicLocale);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Kept for callers that still import the former helper. Locale is URL-owned.
 export function detectInitialLocale(): Locale {
-  if (typeof navigator === 'undefined') return 'en';
-  const lang = (navigator.language ?? '').toLowerCase();
-  if (lang.startsWith('ko')) return 'ko';
-  if (lang.startsWith('zh')) return 'zh';
-  return 'en';
+  return 'ko';
 }
 
 // ── Types ────────────────────────────────────────────────────────────────────

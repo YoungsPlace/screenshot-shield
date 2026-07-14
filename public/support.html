@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Screenshot Shield 지원 — 휴대폰과 브라우저에서 로컬로 스크린샷을 가리는 방법과 문제 보고 경로입니다."
+    />
+    <title>지원 | Screenshot Shield</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        color: #17212f;
+        background: #f6f8fb;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        line-height: 1.6;
+      }
+      a {
+        color: #0759c7;
+        text-underline-offset: 0.18em;
+      }
+      a:hover {
+        color: #043f8f;
+      }
+      a:focus-visible {
+        outline: 3px solid #e27a00;
+        outline-offset: 3px;
+      }
+      .skip-link {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0.7rem 1rem;
+        transform: translateY(-120%);
+        background: #17212f;
+        color: #fff;
+        z-index: 2;
+      }
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+      .page {
+        width: min(100% - 2rem, 48rem);
+        margin: 0 auto;
+      }
+      header {
+        padding: 2rem 0 1.25rem;
+        border-bottom: 1px solid #d8dee8;
+      }
+      .eyebrow {
+        margin: 0;
+        color: #4d5d72;
+        font-size: 0.9rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        color: #101827;
+      }
+      h1 {
+        margin: 0.3rem 0 0.5rem;
+        font-size: clamp(1.85rem, 5vw, 2.6rem);
+      }
+      h2 {
+        margin-top: 2.2rem;
+        font-size: clamp(1.25rem, 3vw, 1.55rem);
+      }
+      h3 {
+        margin-bottom: 0.35rem;
+        font-size: 1.05rem;
+      }
+      p,
+      li {
+        max-width: 72ch;
+      }
+      .language-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        margin: 1rem 0 0;
+      }
+      .language-links a[aria-current='page'] {
+        color: #17212f;
+        font-weight: 800;
+        text-decoration-thickness: 0.18em;
+      }
+      main {
+        padding: 1.5rem 0 2.5rem;
+      }
+      article {
+        background: #fff;
+        border: 1px solid #d8dee8;
+        border-radius: 0.9rem;
+        padding: clamp(1.1rem, 4vw, 2rem);
+        box-shadow: 0 0.3rem 1.2rem rgb(23 33 47 / 6%);
+      }
+      article[hidden] {
+        display: none;
+      }
+      .notice {
+        padding: 1rem;
+        border-left: 0.35rem solid #0759c7;
+        background: #edf5ff;
+      }
+      .steps {
+        padding-left: 1.35rem;
+      }
+      .card {
+        margin: 1rem 0;
+        padding: 1rem;
+        border: 1px solid #d8dee8;
+        border-radius: 0.6rem;
+        background: #fbfcfe;
+      }
+      .warning {
+        border-left: 0.35rem solid #b45309;
+        background: #fff8eb;
+      }
+      code {
+        padding: 0.1rem 0.28rem;
+        border-radius: 0.25rem;
+        background: #edf0f5;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 0.9em;
+      }
+      footer {
+        padding: 1rem 0 2rem;
+        color: #4d5d72;
+        font-size: 0.92rem;
+      }
+      @media (max-width: 34rem) {
+        .page {
+          width: min(100% - 1.25rem, 48rem);
+        }
+        header {
+          padding-top: 1.25rem;
+        }
+        .language-links {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 0.45rem;
+        }
+        .language-links a {
+          padding: 0.45rem 0.2rem;
+          text-align: center;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#support">본문으로 건너뛰기</a>
+    <header>
+      <div class="page">
+        <p class="eyebrow">SCREENSHOT SHIELD</p>
+        <nav class="language-links" aria-label="언어 선택">
+          <a data-language-link="ko" lang="ko" href="support.html?lang=ko">한국어</a>
+          <a data-language-link="en" lang="en" href="support.html?lang=en">English</a>
+          <a data-language-link="zh-CN" lang="zh-CN" href="support.html?lang=zh-CN">简体中文</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="support" class="page" tabindex="-1">
+      <noscript>
+        <p class="notice">
+          자바스크립트를 사용할 수 없으면 이 페이지는 기본 언어인 한국어로 표시됩니다.
+        </p>
+      </noscript>
+
+      <article data-language="ko">
+        <h1>지원</h1>
+        <p>
+          현재 Screenshot Shield는 GitHub Pages에서 제공되는 모바일 웹 앱입니다. 이 페이지는
+          브라우저에서 스스로 해결하는 방법과 공개 저장소를 통한 비민감 문제 보고 경로를 설명합니다.
+          네이티브 앱 또는 앱 스토어 출시를 현재 제공되는 것으로 주장하지 않습니다.
+        </p>
+
+        <h2>휴대폰에서 시작하기</h2>
+        <ol class="steps">
+          <li>
+            <a href="https://youngsplace.github.io/screenshot-shield/?view=editor&amp;lang=ko"
+              >한국어 편집기</a
+            >를 열고 사진 또는 파일에서 스크린샷을 선택합니다.
+          </li>
+          <li>
+            자동 제안이 보이면 검토하되, 보이지 않거나 OCR을 사용할 수 없을 때도 직접 가림 영역을
+            추가·이동·크기 조절·삭제할 수 있습니다.
+          </li>
+          <li>
+            최종 미리보기를 검토하고 새 가림 결과물을 준비합니다. 이 결과물은 원본 바이트를
+            재사용하지 않는 새 PNG 또는 JPEG입니다.
+          </li>
+          <li>
+            지원되는 경우 별도의 공유 동작에서 대상 앱을 선택하거나, 다운로드/저장합니다. 공유
+            대상은 자체 정책에 따라 가림 결과물을 저장하거나 업로드할 수 있습니다.
+          </li>
+        </ol>
+        <p>
+          이미지는 Screenshot Shield 서버로 업로드되지 않습니다. 중요한 정보는 자동 제안만 믿지 말고
+          공유 전 직접 확인하세요.
+        </p>
+
+        <h2>브라우저와 홈 화면</h2>
+        <div class="card">
+          <h3>편집기 우선 열기</h3>
+          <p>
+            <a href="https://youngsplace.github.io/screenshot-shield/?view=editor&amp;lang=ko"
+              >편집기 우선 주소</a
+            >는 마케팅 화면을 건너뛰고 일반 편집기 화면을 엽니다. 기본 주소는 언제나 한국어입니다.
+          </p>
+        </div>
+        <div class="card">
+          <h3>홈 화면 추가</h3>
+          <p>
+            iPhone/iPad의 Safari에서는 공유 메뉴에서 <strong>홈 화면에 추가</strong>를, Android
+            Chromium에서는 브라우저 메뉴에 제안될 때 <strong>앱 설치</strong> 또는
+            <strong>홈 화면에 추가</strong>를 사용합니다. 정확한 메뉴와 제공 여부는 브라우저,
+            운영체제 및 정책이 정합니다.
+          </p>
+        </div>
+        <p>
+          홈 화면 웹 앱은 네이티브 앱이나 앱 스토어 배포를 뜻하지 않습니다. 웹에는 서비스 워커와
+          오프라인 지원이 없으므로 오프라인 작동을 기대하지 마세요.
+        </p>
+
+        <h2>언어</h2>
+        <p>
+          한국어는 기본 언어입니다. <a lang="en" href="support.html?lang=en">English</a> 및
+          <a lang="zh-CN" href="support.html?lang=zh-CN">简体中文</a> 주소는 바로 공유할 수
+          있습니다. 설치된 홈 화면 웹 앱에서는 마지막으로 명시적으로 고른 언어만
+          <code>screenshot-shield.locale</code> 설정으로 기억할 수 있습니다. 저장소를 지우거나
+          사용할 수 없으면 한국어로 돌아갑니다. 일반 빈 주소는 저장된 언어를 읽지 않습니다.
+        </p>
+
+        <h2>일반 도움 및 버그 보고</h2>
+        <p>
+          GitHub에 접근할 수 있으면
+          <a href="https://github.com/YoungsPlace/screenshot-shield">공개 저장소</a>에서 문서와
+          알려진 변경 사항을 확인하고, 민감한 내용이 없는 재현 가능한 문제는
+          <a href="https://github.com/YoungsPlace/screenshot-shield/issues">Issues</a>에 제출하세요.
+          계정이 필요할 수 있으며 GitHub의 가용성과 정책이 적용됩니다.
+        </p>
+        <div class="card">
+          <h3>포함할 정보</h3>
+          <ul>
+            <li>
+              사용 중인 화면: 웹, 홈 화면 웹 앱, 또는 (향후 별도로 출시된 경우에만) 네이티브 앱
+            </li>
+            <li>
+              Screenshot Shield 버전 또는 배포 식별자, 전체 페이지 주소와 <code>lang</code> 값
+            </li>
+            <li>기기 모델, 운영체제와 버전, 브라우저와 버전</li>
+            <li>재현 단계, 기대한 결과, 실제 결과, 오류 메시지 및 발생 시각</li>
+            <li>원본 이미지·비밀·토큰·개인정보를 포함하지 않는 가려진 또는 합성된 증거</li>
+          </ul>
+        </div>
+
+        <h2>보안 및 개인정보 문제</h2>
+        <div class="card warning">
+          <p>
+            원본 스크린샷, 자격 증명, 실제 비밀 또는 공격 페이로드를 공개 Issues에 올리지 마세요.
+            예상치 못한 네트워크 요청, 이미지 저장, 공유 경계 또는 언어 저장소 문제는
+            <a href="https://github.com/YoungsPlace/screenshot-shield/blob/main/SECURITY.md"
+              >보안 정책</a
+            >의 비공개 보고 절차를 따르세요.
+          </p>
+        </div>
+        <p>
+          <a href="privacy.html?lang=ko">개인정보 처리방침</a>에는 로컬 처리, 다운로드/공유 경계 및
+          계획된 네이티브 캐시의 제한이 설명되어 있습니다.
+        </p>
+
+        <h2>응답 기대치</h2>
+        <p>
+          지원은 공개 저장소의 유지 관리 가능 여부에 따라 처리됩니다. 동기식 지원, 특정 응답 시간,
+          문제 확인 또는 해결을 약속하지 않습니다. 보안 보고도 공개 Issue 대신 정책에 지정된 경로를
+          사용하세요.
+        </p>
+      </article>
+
+      <article data-language="en" hidden>
+        <h1>Support</h1>
+        <p>
+          Screenshot Shield is currently a mobile web app served on GitHub Pages. This page explains
+          browser self-help and a public-repository route for non-sensitive reports. It does not
+          claim a native app or app-store release as currently available.
+        </p>
+
+        <h2>Start on a phone</h2>
+        <ol class="steps">
+          <li>
+            Open the
+            <a href="https://youngsplace.github.io/screenshot-shield/?view=editor&amp;lang=en"
+              >English editor</a
+            >
+            and choose a screenshot from Photos or Files.
+          </li>
+          <li>
+            Review any automatic suggestions, but add, move, resize, or remove manual redaction
+            regions whenever OCR is unavailable or a suggestion is missing.
+          </li>
+          <li>
+            Review the final preview and prepare a new redacted output. It is a new PNG or JPEG and
+            does not reuse the source bytes.
+          </li>
+          <li>
+            Where supported, choose a destination in a separate Share action, or download/save the
+            output. A destination may store or upload the redacted output under its own policy.
+          </li>
+        </ol>
+        <p>
+          Screenshot Shield does not upload images to an app server. Do not rely on automatic
+          suggestions alone for important information; inspect the result before sharing.
+        </p>
+
+        <h2>Browser and home screen</h2>
+        <div class="card">
+          <h3>Open editor first</h3>
+          <p>
+            The
+            <a href="https://youngsplace.github.io/screenshot-shield/?view=editor&amp;lang=en"
+              >editor-first URL</a
+            >
+            bypasses the marketing view and opens normal editor chrome. The bare address always
+            defaults to Korean.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Add to home screen</h3>
+          <p>
+            In Safari on iPhone or iPad, use Share then <strong>Add to Home Screen</strong>. In
+            Android Chromium, use <strong>Install app</strong> or
+            <strong>Add to Home screen</strong> when the browser menu offers it. Exact wording and
+            availability are controlled by your browser, operating system, and policy.
+          </p>
+        </div>
+        <p>
+          A home-screen web app is not a native app or an app-store distribution. The web app has no
+          service worker or offline support, so do not expect it to work offline.
+        </p>
+
+        <h2>Language</h2>
+        <p>
+          Korean is the default language. The
+          <a lang="ko" href="support.html?lang=ko">한국어</a> and
+          <a lang="zh-CN" href="support.html?lang=zh-CN">简体中文</a> URLs are direct, shareable
+          links. An installed home-screen web app may remember only the last explicitly selected
+          language in the <code>screenshot-shield.locale</code> preference. It returns to Korean if
+          storage is cleared or unavailable. A normal bare URL never reads that preference.
+        </p>
+
+        <h2>General help and bug reports</h2>
+        <p>
+          When GitHub is reachable, use the
+          <a href="https://github.com/YoungsPlace/screenshot-shield">public repository</a> for
+          documentation and published changes. Submit reproducible, non-sensitive bugs through
+          <a href="https://github.com/YoungsPlace/screenshot-shield/issues">Issues</a>. A GitHub
+          account may be required, and GitHub availability and policies apply.
+        </p>
+        <div class="card">
+          <h3>Include these details</h3>
+          <ul>
+            <li>
+              The surface you used: web, installed home-screen web app, or a native app only if it
+              has separately been released
+            </li>
+            <li>
+              Screenshot Shield version or deployment identifier, complete page URL, and
+              <code>lang</code> value
+            </li>
+            <li>Device model, operating-system version, browser, and browser version</li>
+            <li>
+              Steps to reproduce, expected and actual behavior, any error message, and when it
+              occurred
+            </li>
+            <li>
+              Only redacted or synthetic evidence—never a source image, secret, token, or personal
+              data
+            </li>
+          </ul>
+        </div>
+
+        <h2>Security and privacy concerns</h2>
+        <div class="card warning">
+          <p>
+            Do not post source screenshots, credentials, real secrets, or exploit payloads in public
+            Issues. For unexpected network activity, image persistence, a share-boundary concern, or
+            a locale-storage issue, use the private reporting process in the
+            <a href="https://github.com/YoungsPlace/screenshot-shield/blob/main/SECURITY.md"
+              >security policy</a
+            >.
+          </p>
+        </div>
+        <p>
+          The <a href="privacy.html?lang=en">privacy policy</a> explains local processing, the
+          download/share boundary, and the limited planned-native cache boundary.
+        </p>
+
+        <h2>Response expectations</h2>
+        <p>
+          Support is handled as repository maintenance permits. We do not promise synchronous
+          support, a particular response time, acknowledgement, or resolution. Use the
+          security-policy path rather than a public Issue for a security report.
+        </p>
+      </article>
+
+      <article data-language="zh-CN" hidden>
+        <h1>支持</h1>
+        <p>
+          Screenshot Shield 当前是在 GitHub Pages
+          上提供的移动网页应用。本页面说明浏览器自助方式，以及通过公开仓库提交非敏感报告的路径；不宣称原生应用或应用商店版本目前可用。
+        </p>
+
+        <h2>在手机上开始</h2>
+        <ol class="steps">
+          <li>
+            打开<a
+              href="https://youngsplace.github.io/screenshot-shield/?view=editor&amp;lang=zh-CN"
+              >简体中文编辑器</a
+            >，然后从照片或文件中选择截图。
+          </li>
+          <li>
+            检查自动建议；OCR 不可用或漏掉内容时，仍可手动添加、移动、调整大小或删除打码区域。
+          </li>
+          <li>检查最终预览并准备新的打码输出。它是新的 PNG 或 JPEG，不会复用原始字节。</li>
+          <li>
+            在支持时，通过单独的“分享”操作选择接收方，或下载/保存输出。接收方可能按其自身政策保存或上传打码输出。
+          </li>
+        </ol>
+        <p>
+          Screenshot Shield
+          不会把图片上传到应用服务器。对于重要信息，请不要只依赖自动建议；分享前务必检查结果。
+        </p>
+
+        <h2>浏览器与主屏幕</h2>
+        <div class="card">
+          <h3>直接打开编辑器</h3>
+          <p>
+            <a href="https://youngsplace.github.io/screenshot-shield/?view=editor&amp;lang=zh-CN"
+              >编辑器优先地址</a
+            >会跳过营销页面并打开普通编辑器界面。无参数地址始终默认韩语。
+          </p>
+        </div>
+        <div class="card">
+          <h3>添加到主屏幕</h3>
+          <p>
+            在 iPhone 或 iPad 的 Safari 中，使用“分享”然后选择<strong>添加到主屏幕</strong>；在
+            Android Chromium
+            中，当浏览器菜单提供时，选择<strong>安装应用</strong>或<strong>添加到主屏幕</strong>。具体菜单文字与可用性由浏览器、操作系统和策略控制。
+          </p>
+        </div>
+        <p>
+          主屏幕网页应用不是原生应用，也不是应用商店分发。网页应用没有服务工作线程和离线支持，请不要期待离线可用。
+        </p>
+
+        <h2>语言</h2>
+        <p>
+          韩语是默认语言。<a lang="ko" href="support.html?lang=ko">한국어</a>和<a
+            lang="en"
+            href="support.html?lang=en"
+            >English</a
+          >地址可直接分享。已安装的主屏幕网页应用最多只会在
+          <code>screenshot-shield.locale</code>
+          偏好中记住最后一次明确选择的语言。存储被清除或不可用时会回退为韩语；普通无参数地址不会读取该偏好。
+        </p>
+
+        <h2>一般帮助与错误报告</h2>
+        <p>
+          在 GitHub 可访问时，请通过<a href="https://github.com/YoungsPlace/screenshot-shield"
+            >公开仓库</a
+          >查看文档和已发布的变更，并通过
+          <a href="https://github.com/YoungsPlace/screenshot-shield/issues">Issues</a>
+          提交可复现、非敏感的问题。可能需要 GitHub 账户，并受 GitHub 可用性与政策约束。
+        </p>
+        <div class="card">
+          <h3>请附上这些信息</h3>
+          <ul>
+            <li>使用的界面：网页、已安装的主屏幕网页应用，或仅在其已单独发布时的原生应用</li>
+            <li>Screenshot Shield 版本或部署标识、完整页面地址与 <code>lang</code> 值</li>
+            <li>设备型号、操作系统和版本、浏览器和浏览器版本</li>
+            <li>复现步骤、预期和实际行为、错误消息以及发生时间</li>
+            <li>仅提供已打码或合成的证据，绝不提供原始图片、秘密、令牌或个人数据</li>
+          </ul>
+        </div>
+
+        <h2>安全与隐私问题</h2>
+        <div class="card warning">
+          <p>
+            请勿在公开 Issues
+            中发布原始截图、凭据、真实秘密或利用载荷。若发现意外网络活动、图片持久化、分享边界问题或语言存储问题，请使用<a
+              href="https://github.com/YoungsPlace/screenshot-shield/blob/main/SECURITY.md"
+              >安全政策</a
+            >中的私密报告流程。
+          </p>
+        </div>
+        <p>
+          <a href="privacy.html?lang=zh-CN">隐私政策</a
+          >说明本地处理、下载/分享边界以及计划中原生缓存的有限边界。
+        </p>
+
+        <h2>响应预期</h2>
+        <p>
+          支持工作取决于仓库维护能力。我们不承诺同步支持、特定响应时间、确认或解决。安全报告请使用安全政策指定的路径，而不是公开
+          Issue。
+        </p>
+      </article>
+    </main>
+
+    <footer class="page">
+      <a data-home-link href="https://youngsplace.github.io/screenshot-shield/?lang=ko"
+        >Screenshot Shield</a
+      >
+      <span aria-hidden="true"> · </span>
+      <a data-page-link="privacy" href="privacy.html?lang=ko"
+        ><span lang="ko">개인정보 처리방침</span> / <span lang="en">Privacy</span> /
+        <span lang="zh-CN">隐私政策</span></a
+      >
+    </footer>
+
+    <script>
+      (() => {
+        const validLanguages = new Set(['ko', 'en', 'zh-CN']);
+        const values = new URLSearchParams(window.location.search).getAll('lang');
+        const language = values.length === 1 && validLanguages.has(values[0]) ? values[0] : 'ko';
+        const metadata = {
+          ko: { title: '지원 | Screenshot Shield', nav: '언어 선택', skip: '본문으로 건너뛰기' },
+          en: {
+            title: 'Support | Screenshot Shield',
+            nav: 'Choose language',
+            skip: 'Skip to support',
+          },
+          'zh-CN': { title: '支持 | Screenshot Shield', nav: '选择语言', skip: '跳至支持正文' },
+        }[language];
+
+        document.documentElement.lang = language;
+        document.title = metadata.title;
+        document
+          .querySelector('meta[name=description]')
+          .setAttribute(
+            'content',
+            language === 'ko'
+              ? 'Screenshot Shield 지원 — 휴대폰과 브라우저에서 로컬로 스크린샷을 가리는 방법과 문제 보고 경로입니다.'
+              : language === 'en'
+                ? 'Screenshot Shield support — browser self-help and a path to report non-sensitive issues.'
+                : 'Screenshot Shield 支持 — 浏览器自助帮助与非敏感问题报告路径。',
+          );
+        document.querySelector('.language-links').setAttribute('aria-label', metadata.nav);
+        document.querySelector('.skip-link').textContent = metadata.skip;
+        document.querySelectorAll('[data-language]').forEach((article) => {
+          article.hidden = article.dataset.language !== language;
+        });
+        const currentLink = document.querySelector(`[data-language-link="${language}"]`);
+        currentLink.setAttribute('aria-current', 'page');
+        document.querySelector('[data-home-link]').href =
+          `https://youngsplace.github.io/screenshot-shield/?lang=${language}`;
+        document.querySelector('[data-page-link=privacy]').href = `privacy.html?lang=${language}`;
+      })();
+    </script>
+  </body>
+</html>

@@ -1,37 +1,48 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta
       name="description"
-      content="Redact sensitive text from screenshots locally in your browser—no upload, no server, no tracking. OCR-assisted suggestions plus manual rectangles, exported as a fresh canvas."
+      content="원본 스크린샷을 앱 서버에 업로드하지 않고, 분석·추적이나 원격 OCR 없이 브라우저에서 민감한 정보를 가린 새 파일을 준비합니다."
     />
     <meta name="theme-color" content="#10131f" />
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="%BASE_URL%icons/apple-touch-icon.png" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
     <meta property="og:site_name" content="Screenshot Shield" />
-    <meta property="og:title" content="Screenshot Shield — Redact before you share" />
+    <meta property="og:title" content="Screenshot Shield — 공유 전 스크린샷 가리기" />
     <meta
       property="og:description"
-      content="Local-only screenshot redaction. Paste or drop a screenshot, review OCR-assisted suggestions, draw redaction boxes, export a freshly rendered file. Nothing leaves your browser."
+      content="원본 스크린샷을 앱 서버에 업로드하지 않고, 분석·추적이나 원격 OCR 없이 브라우저에서 민감한 정보를 가린 새 파일을 준비합니다."
     />
-    <meta property="og:image" content="/screenshot-shield/social-card.svg" />
+    <meta
+      property="og:image"
+      content="https://youngsplace.github.io/screenshot-shield/social-card.png"
+    />
+    <meta property="og:image:alt" content="Screenshot Shield 가리기 전후 화면" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content="https://youngsplace.github.io/screenshot-shield/" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Screenshot Shield — Redact before you share" />
+    <meta name="twitter:title" content="Screenshot Shield — 공유 전 스크린샷 가리기" />
     <meta
       name="twitter:description"
-      content="Local-only screenshot redaction. No upload, no server. OCR-assisted review, fresh-canvas export."
+      content="원본 스크린샷 업로드, 분석·추적, 원격 OCR 없이 브라우저에서 민감한 정보를 가리세요."
     />
-    <meta name="twitter:image" content="/screenshot-shield/social-card.svg" />
+    <meta
+      name="twitter:image"
+      content="https://youngsplace.github.io/screenshot-shield/social-card.png"
+    />
+    <meta name="twitter:image:alt" content="Screenshot Shield 가리기 전후 화면" />
 
-    <title>Screenshot Shield</title>
+    <title>Screenshot Shield — 공유 전 스크린샷 가리기</title>
   </head>
   <body>
     <div id="root"></div>

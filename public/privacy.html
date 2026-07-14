@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Screenshot Shield 개인정보 처리방침 — 스크린샷은 브라우저에서 로컬로 처리됩니다."
+    />
+    <title>개인정보 처리방침 | Screenshot Shield</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        color: #17212f;
+        background: #f6f8fb;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        line-height: 1.6;
+      }
+      a {
+        color: #0759c7;
+        text-underline-offset: 0.18em;
+      }
+      a:hover {
+        color: #043f8f;
+      }
+      a:focus-visible {
+        outline: 3px solid #e27a00;
+        outline-offset: 3px;
+      }
+      .skip-link {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0.7rem 1rem;
+        transform: translateY(-120%);
+        background: #17212f;
+        color: #fff;
+        z-index: 2;
+      }
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+      .page {
+        width: min(100% - 2rem, 48rem);
+        margin: 0 auto;
+      }
+      header {
+        padding: 2rem 0 1.25rem;
+        border-bottom: 1px solid #d8dee8;
+      }
+      .eyebrow {
+        margin: 0;
+        color: #4d5d72;
+        font-size: 0.9rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        color: #101827;
+      }
+      h1 {
+        margin: 0.3rem 0 0.5rem;
+        font-size: clamp(1.85rem, 5vw, 2.6rem);
+      }
+      h2 {
+        margin-top: 2.2rem;
+        font-size: clamp(1.25rem, 3vw, 1.55rem);
+      }
+      h3 {
+        margin-bottom: 0.35rem;
+        font-size: 1.05rem;
+      }
+      p,
+      li {
+        max-width: 72ch;
+      }
+      .language-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        margin: 1rem 0 0;
+      }
+      .language-links a[aria-current='page'] {
+        color: #17212f;
+        font-weight: 800;
+        text-decoration-thickness: 0.18em;
+      }
+      main {
+        padding: 1.5rem 0 2.5rem;
+      }
+      article {
+        background: #fff;
+        border: 1px solid #d8dee8;
+        border-radius: 0.9rem;
+        padding: clamp(1.1rem, 4vw, 2rem);
+        box-shadow: 0 0.3rem 1.2rem rgb(23 33 47 / 6%);
+      }
+      article[hidden] {
+        display: none;
+      }
+      .notice {
+        padding: 1rem;
+        border-left: 0.35rem solid #0759c7;
+        background: #edf5ff;
+      }
+      .boundary {
+        padding: 1rem;
+        border: 1px solid #b7d6c1;
+        border-radius: 0.6rem;
+        background: #f1fbf4;
+      }
+      code {
+        padding: 0.1rem 0.28rem;
+        border-radius: 0.25rem;
+        background: #edf0f5;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 0.9em;
+      }
+      footer {
+        padding: 1rem 0 2rem;
+        color: #4d5d72;
+        font-size: 0.92rem;
+      }
+      @media (max-width: 34rem) {
+        .page {
+          width: min(100% - 1.25rem, 48rem);
+        }
+        header {
+          padding-top: 1.25rem;
+        }
+        .language-links {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 0.45rem;
+        }
+        .language-links a {
+          padding: 0.45rem 0.2rem;
+          text-align: center;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#privacy">본문으로 건너뛰기</a>
+    <header>
+      <div class="page">
+        <p class="eyebrow">SCREENSHOT SHIELD</p>
+        <nav class="language-links" aria-label="언어 선택">
+          <a data-language-link="ko" lang="ko" href="privacy.html?lang=ko">한국어</a>
+          <a data-language-link="en" lang="en" href="privacy.html?lang=en">English</a>
+          <a data-language-link="zh-CN" lang="zh-CN" href="privacy.html?lang=zh-CN">简体中文</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="privacy" class="page" tabindex="-1">
+      <noscript>
+        <p class="notice">
+          자바스크립트를 사용할 수 없으면 이 페이지는 기본 언어인 한국어로 표시됩니다.
+        </p>
+      </noscript>
+
+      <article data-language="ko">
+        <h1>개인정보 처리방침</h1>
+        <p>
+          Screenshot Shield는 스크린샷의 민감한 내용을 가린 새 파일을 만들기 위한 로컬 처리
+          도구입니다. 현재 제공되는 서비스는 GitHub Pages의 모바일 웹 앱입니다. 이 정책은 현재 웹
+          서비스와, 아직 출시되지 않은 네이티브 앱의 계획된 경계를 구분하여 설명합니다.
+        </p>
+
+        <h2>현재 웹 앱의 처리 방식</h2>
+        <p>
+          선택·붙여넣기·끌어놓기한 이미지는 브라우저 안에서만 디코드, 검토, 가림 및 새 PNG/JPEG
+          렌더링에 사용됩니다. Screenshot Shield에는 스크린샷이나 내보낸 파일을 받는 업로드 기능,
+          백엔드, 계정 또는 앱 서버가 없습니다. 원본 이미지는 앱이 보관하거나 전송하지 않습니다.
+        </p>
+        <ul>
+          <li>
+            광고, 분석, 텔레메트리, 세션 재생, 추적 픽셀 또는 앱 제어 충돌 보고 전송이 없습니다.
+          </li>
+          <li>
+            원격 OCR API, 타사 이미지 처리 API 또는 원격 글꼴을 사용하지 않습니다. OCR 보조 기능은
+            사용 가능할 때 같은 출처의 자산을 이용해 브라우저에서 실행됩니다.
+          </li>
+          <li>
+            원본 이미지, 편집 영역, OCR 텍스트·결과, 파일 이름, 준비된 파일 또는 출력 메타데이터를
+            쿠키, URL, localStorage, sessionStorage, IndexedDB 또는 Cache Storage에 저장하지
+            않습니다.
+          </li>
+        </ul>
+
+        <h2>유일한 웹 설정</h2>
+        <p>
+          설치된 홈 화면 웹 앱의 언어를 다시 열기 위해서만
+          <code>screenshot-shield.locale</code>이라는 localStorage 항목에 <code>ko</code>,
+          <code>en</code> 또는 <code>zh-CN</code> 중 하나를 저장할 수 있습니다. 이것이 이 릴리스의
+          유일한 영구 제품 설정입니다. 비어 있거나 잘못된 값, 저장소 차단·삭제 또는 오류가 있으면
+          설치된 시작 화면은 한국어로 열립니다. 일반적인 빈 웹 주소는 저장된 값을 읽지 않으며 항상
+          한국어가 기본입니다.
+        </p>
+
+        <h2>다운로드와 공유의 경계</h2>
+        <div class="boundary">
+          <p>
+            <strong>앱 밖으로 나갈 수 있는 이미지는 사용자가 준비한 새 가림 결과물뿐입니다.</strong>
+            준비는 새 캔버스에서 새 PNG 또는 JPEG 파일을 만들며, 원본 바이트를 재사용하지 않습니다.
+          </p>
+          <p>
+            사용자가 다운로드/저장을 누르거나 지원되는 경우 별도의 공유 동작에서 대상 앱을 고른
+            뒤에만 그 가림 파일이 전달됩니다. 선택한 공유 대상은 자체 정책에 따라 파일을 저장하거나
+            업로드할 수 있습니다. Screenshot Shield는 수신 성공, 대상의 보관 방식 또는 삭제를
+            보장하지 않습니다. 공유 전에 미리보기를 직접 확인하세요.
+          </p>
+        </div>
+
+        <h2>오프라인 및 설치</h2>
+        <p>
+          웹 앱에는 서비스 워커나 웹 오프라인 기능이 없습니다. 브라우저가 홈 화면 추가 또는 독립
+          실행을 제공할 수 있지만, 이는 브라우저가 관리하며 오프라인 동작을 뜻하지 않습니다.
+        </p>
+
+        <h2>계획된 네이티브 앱</h2>
+        <p>
+          <strong
+            >네이티브 iOS/Android 앱은 현재 스토어에 출시되었거나 제공된 것으로 주장하지
+            않습니다.</strong
+          >
+          향후 검증을 거쳐 제공되는 경우에도 원본·편집 상태·OCR 기록은 저장하지 않는 설계를
+          따릅니다. 명시적 네이티브 공유를 위해 새로 가린 결과물 하나만 비공개·백업 제외·갤러리
+          제외의 제한된 임시 캐시에 잠시 존재할 수 있으며, 원본은 절대 그 캐시에 들어가지 않습니다.
+        </p>
+        <p>
+          그 임시 결과물은 공유 처리와 정리 경계에 따라 관리됩니다. 운영체제의 캐시 제거, 공유
+          대상의 보관 또는 전달 결과를 앱이 보장할 수는 없습니다. 네이티브 배포와 스토어 공개는 별도
+          기기·서명·스토어 증거가 확인된 뒤에만 공지됩니다.
+        </p>
+
+        <h2>한계와 문의</h2>
+        <p>
+          자동 제안과 OCR은 검토 보조 수단일 뿐 모든 민감 정보를 찾아낸다고 보장하지 않습니다.
+          브라우저 확장 프로그램, 손상된 기기·브라우저 또는 변조된 배포는 이 경계를 훼손할 수
+          있습니다. 보안 문제는
+          <a href="https://github.com/YoungsPlace/screenshot-shield/blob/main/SECURITY.md"
+            >보안 정책</a
+          >을, 일반 문의는 <a href="support.html?lang=ko">지원 페이지</a>를 확인하세요.
+        </p>
+      </article>
+
+      <article data-language="en" hidden>
+        <h1>Privacy Policy</h1>
+        <p>
+          Screenshot Shield is a local tool for creating a newly redacted screenshot. The currently
+          provided service is the GitHub Pages mobile web app. This policy distinguishes that
+          current web service from boundaries planned for native apps that are not yet released.
+        </p>
+
+        <h2>How the current web app works</h2>
+        <p>
+          An image you choose, paste, or drop is decoded, reviewed, redacted, and rendered as a new
+          PNG or JPEG only in your browser. Screenshot Shield has no screenshot/export upload
+          feature, backend, account system, or app server. It does not retain or transmit the
+          original image.
+        </p>
+        <ul>
+          <li>
+            There are no ads, analytics, telemetry, session replay, tracking pixels, or
+            app-controlled crash-report egress.
+          </li>
+          <li>
+            There is no remote OCR API, third-party image-processing API, or remote font. When
+            available, OCR assistance runs in the browser with same-origin assets.
+          </li>
+          <li>
+            Original images, edit regions, OCR text/results, filenames, prepared files, and output
+            metadata are not written to cookies, URLs, localStorage, sessionStorage, IndexedDB, or
+            Cache Storage.
+          </li>
+        </ul>
+
+        <h2>The only web preference</h2>
+        <p>
+          For reopening an installed home-screen web app in its selected language only, localStorage
+          may contain <code>screenshot-shield.locale</code> with exactly <code>ko</code>,
+          <code>en</code>, or <code>zh-CN</code>. It is this release's only persisted product
+          setting. If storage is cleared, unavailable, blocked, invalid, or fails, an installed
+          start falls back to Korean. A normal bare web URL does not read this preference and always
+          defaults to Korean.
+        </p>
+
+        <h2>Download and share boundary</h2>
+        <div class="boundary">
+          <p>
+            <strong
+              >The only image that can leave the app is a newly prepared redacted output.</strong
+            >
+            Preparation renders a fresh PNG or JPEG from a new canvas and does not reuse the
+            original bytes.
+          </p>
+          <p>
+            That redacted file is handed off only after you choose download/save or, where
+            supported, choose a destination in a separate Share action. A destination you choose may
+            store or upload the file under its own policy. Screenshot Shield does not promise
+            receiver success, a destination's retention behavior, or deletion. Review the preview
+            before you share.
+          </p>
+        </div>
+
+        <h2>Offline and installation</h2>
+        <p>
+          The web app has no service worker and makes no web-offline claim. Your browser may offer
+          home-screen or standalone installation, but that is browser-controlled and does not mean
+          the app works offline.
+        </p>
+
+        <h2>Planned native apps</h2>
+        <p>
+          <strong
+            >No iOS or Android native app is claimed as published or available in an app store
+            today.</strong
+          >
+          If a future native release is independently verified, its design still prohibits storing
+          originals, edit state, and OCR history. For an explicit native share, at most one freshly
+          redacted output may temporarily exist in a private, backup-excluded, non-gallery bounded
+          cache. The original never enters that cache.
+        </p>
+        <p>
+          That temporary output is managed around the share and cleanup boundary. The app cannot
+          guarantee operating-system cache eviction, a destination's retention, or delivery result.
+          Native distribution and store availability will be announced only after separate device,
+          signing, and store evidence exists.
+        </p>
+
+        <h2>Limits and contact</h2>
+        <p>
+          Automatic suggestions and OCR are review aids, not a guarantee that every sensitive item
+          is found. Browser extensions, a compromised browser/device, or an altered deployment can
+          defeat these boundaries. Read the
+          <a href="https://github.com/YoungsPlace/screenshot-shield/blob/main/SECURITY.md"
+            >security policy</a
+          >
+          for security reports or the <a href="support.html?lang=en">support page</a> for general
+          help.
+        </p>
+      </article>
+
+      <article data-language="zh-CN" hidden>
+        <h1>隐私政策</h1>
+        <p>
+          Screenshot Shield 是用于生成全新打码截图的本地工具。目前提供的服务是 GitHub Pages
+          移动网页应用。本政策区分当前网页服务与尚未发布的原生应用计划边界。
+        </p>
+
+        <h2>当前网页应用如何工作</h2>
+        <p>
+          您选择、粘贴或拖入的图片仅在浏览器中解码、检查、打码并渲染为新的 PNG 或 JPEG。Screenshot
+          Shield 没有截图或导出文件上传功能、后端、账户系统或应用服务器，也不会保留或传输原始图片。
+        </p>
+        <ul>
+          <li>没有广告、分析、遥测、会话回放、跟踪像素或由应用控制的崩溃报告外传。</li>
+          <li>
+            没有远程 OCR API、第三方图像处理 API 或远程字体。可用时，OCR
+            辅助会使用同源资源在浏览器中运行。
+          </li>
+          <li>
+            原始图片、编辑区域、OCR 文本/结果、文件名、已准备文件和输出元数据不会写入
+            Cookie、URL、localStorage、sessionStorage、IndexedDB 或 Cache Storage。
+          </li>
+        </ul>
+
+        <h2>唯一的网页偏好设置</h2>
+        <p>
+          仅为以选定语言重新打开已安装的主屏幕网页应用，localStorage 可能保存
+          <code>screenshot-shield.locale</code>，其值只能是 <code>ko</code>、<code>en</code> 或
+          <code>zh-CN</code
+          >。这是本版本唯一持久化的产品设置。存储被清除、不可用、被阻止、无效或出错时，已安装的启动页会回退为韩语。普通的无参数网页地址不会读取该偏好，并始终默认韩语。
+        </p>
+
+        <h2>下载与分享边界</h2>
+        <div class="boundary">
+          <p>
+            <strong>唯一可能离开应用的图片是新准备的打码输出。</strong> 准备过程从全新画布渲染新的
+            PNG 或 JPEG，不会复用原始字节。
+          </p>
+          <p>
+            只有当您选择下载/保存，或在支持时通过单独的“分享”操作选择接收方后，该打码文件才会交出。您选择的接收方可能依照自己的政策存储或上传文件。Screenshot
+            Shield 不承诺接收成功、接收方的保留方式或删除。分享前请亲自检查预览。
+          </p>
+        </div>
+
+        <h2>离线与安装</h2>
+        <p>
+          网页应用没有服务工作线程，也不声明支持网页离线功能。浏览器可能提供添加到主屏幕或独立运行，但这由浏览器控制，且不表示应用可离线工作。
+        </p>
+
+        <h2>计划中的原生应用</h2>
+        <p>
+          <strong>当前不宣称 iOS 或 Android 原生应用已在任何应用商店发布或可用。</strong>
+          若未来原生版本经过独立验证，其设计仍禁止存储原件、编辑状态和 OCR
+          历史。仅为明确的原生分享，最多一个新生成的打码输出可能暂时存在于私有、排除备份、不显示在图库中的受限缓存中；原件绝不会进入该缓存。
+        </p>
+        <p>
+          该临时输出会在分享与清理边界内管理。应用不能保证操作系统缓存清除、接收方保留方式或交付结果。只有在取得独立的设备、签名和商店证据后，才会宣布原生分发和商店可用性。
+        </p>
+
+        <h2>限制与联系</h2>
+        <p>
+          自动建议和 OCR
+          仅用于辅助检查，不能保证找到所有敏感信息。浏览器扩展、受损的浏览器/设备或被篡改的部署都可能破坏这些边界。安全问题请阅读<a
+            href="https://github.com/YoungsPlace/screenshot-shield/blob/main/SECURITY.md"
+            >安全政策</a
+          >；一般帮助请访问<a href="support.html?lang=zh-CN">支持页面</a>。
+        </p>
+      </article>
+    </main>
+
+    <footer class="page">
+      <a data-home-link href="https://youngsplace.github.io/screenshot-shield/?lang=ko"
+        >Screenshot Shield</a
+      >
+      <span aria-hidden="true"> · </span>
+      <a data-page-link="support" href="support.html?lang=ko"
+        ><span lang="ko">지원</span> / <span lang="en">Support</span> /
+        <span lang="zh-CN">支持</span></a
+      >
+    </footer>
+
+    <script>
+      (() => {
+        const validLanguages = new Set(['ko', 'en', 'zh-CN']);
+        const values = new URLSearchParams(window.location.search).getAll('lang');
+        const language = values.length === 1 && validLanguages.has(values[0]) ? values[0] : 'ko';
+        const metadata = {
+          ko: {
+            title: '개인정보 처리방침 | Screenshot Shield',
+            nav: '언어 선택',
+            skip: '본문으로 건너뛰기',
+          },
+          en: {
+            title: 'Privacy Policy | Screenshot Shield',
+            nav: 'Choose language',
+            skip: 'Skip to policy',
+          },
+          'zh-CN': { title: '隐私政策 | Screenshot Shield', nav: '选择语言', skip: '跳至政策正文' },
+        }[language];
+
+        document.documentElement.lang = language;
+        document.title = metadata.title;
+        document
+          .querySelector('meta[name=description]')
+          .setAttribute(
+            'content',
+            language === 'ko'
+              ? 'Screenshot Shield 개인정보 처리방침 — 스크린샷은 브라우저에서 로컬로 처리됩니다.'
+              : language === 'en'
+                ? 'Screenshot Shield privacy policy — screenshots are processed locally in your browser.'
+                : 'Screenshot Shield 隐私政策 — 截图仅在您的浏览器中本地处理。',
+          );
+        document.querySelector('.language-links').setAttribute('aria-label', metadata.nav);
+        document.querySelector('.skip-link').textContent = metadata.skip;
+        document.querySelectorAll('[data-language]').forEach((article) => {
+          article.hidden = article.dataset.language !== language;
+        });
+        const currentLink = document.querySelector(`[data-language-link="${language}"]`);
+        currentLink.setAttribute('aria-current', 'page');
+        document.querySelector('[data-home-link]').href =
+          `https://youngsplace.github.io/screenshot-shield/?lang=${language}`;
+        document.querySelector('[data-page-link=support]').href = `support.html?lang=${language}`;
+      })();
+    </script>
+  </body>
+</html>

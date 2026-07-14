@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const port = Number(process.env.PLAYWRIGHT_PORT ?? 4173);
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${port}`;
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${port}/screenshot-shield/`;
 
 export default defineConfig({
   testDir: './e2e',
@@ -32,7 +32,17 @@ export default defineConfig({
     {
       name: 'mobile-chromium',
       use: { ...devices['Pixel 7'] },
-      testMatch: /mobile|landing|egress/,
+      testMatch: [/\.mobile\.spec\.ts$/, /screenshot-shield\.spec\.ts$/],
+    },
+    // WebKit and iPhone viewport emulation; not physical-device certification.
+    {
+      name: 'webkit-iphone-emulation',
+      use: { ...devices['iPhone 13'] },
+      testMatch: [
+        /landing\.mobile\.spec\.ts$/,
+        /launch\.mobile\.spec\.ts$/,
+        /screenshot-shield\.spec\.ts$/,
+      ],
     },
   ],
 });

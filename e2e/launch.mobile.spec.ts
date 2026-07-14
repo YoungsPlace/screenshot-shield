@@ -18,7 +18,7 @@ test('launch story is visual, responsive, and free of third-party requests', asy
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./launch.html');
 
-  await expect(page.getByRole('heading', { level: 1 })).toContainText(/screenshot|safe|zoom/i);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(/[가-힣]/);
   await expect(page.locator('[data-preview]')).toBeVisible();
   await expect(page.locator('iframe')).toBeVisible();
 
@@ -34,13 +34,15 @@ test('launch story switches Korean, English, and Chinese copy and preview state'
   page,
 }) => {
   await page.goto('./launch.html');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(/[가-힣]/);
 
   await page.getByRole('button', { name: 'KO' }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/[가-힣]/);
 
   await page.getByRole('button', { name: '中文' }).click();
-  await expect(page.locator('html')).toHaveAttribute('lang', 'zh');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
   await expect(page.getByRole('heading', { level: 1 })).toContainText(/[\u3400-\u9fff]/);
 
   const preview = page.locator('[data-preview]');
@@ -57,7 +59,11 @@ test('embedded launch editor exposes the real local workflow', async ({ page }) 
   await page.goto('./launch.html');
 
   const frame = page.frameLocator('iframe');
-  await expect(frame.getByRole('heading', { name: /local screenshot editor/i })).toBeVisible();
+  await expect(
+    frame.getByRole('heading', {
+      name: /로컬 스크린샷 편집기|local screenshot editor|本地截图编辑器/i,
+    }),
+  ).toBeVisible();
   await expect(frame.locator('input[type="file"]')).toBeAttached();
   await expect(frame.locator('.marketing-shell')).toHaveCount(0);
 });
@@ -75,5 +81,5 @@ test('share action uses the native share surface when available', async ({ page 
 
   await page.locator('[data-share]:visible').first().click();
   await expect(page.locator('html')).toHaveAttribute('data-shared', 'true');
-  await expect(page.locator('[data-share-status]')).toContainText(/share/i);
+  await expect(page.locator('[data-share-status]')).toContainText(/공유|share/i);
 });

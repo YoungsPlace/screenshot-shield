@@ -71,6 +71,15 @@ function syntheticPng(width = 320, height = 180): Buffer {
   ]);
 }
 
+function byteChecksum(bytes: Uint8Array): string {
+  let hash = 0x811c9dc5;
+  for (const byte of bytes) {
+    hash ^= byte;
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
 function decodePng(buffer: Buffer): DecodedPng {
   expect(
     buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
@@ -142,7 +151,55 @@ async function editorCanvas(page: Page) {
   return canvas;
 }
 
-test('landing, detector copy, keyboard focus, mobile layout, and zero third-party egress', async ({
+async function drawManualRedaction(page: Page): Promise<void> {
+  const drawingLayer = page.locator('.region-layer');
+  await expect(drawingLayer, 'redaction drawing layer').toBeVisible();
+  await drawingLayer.scrollIntoViewIfNeeded();
+
+  const box = await drawingLayer.boundingBox();
+  expect(box, 'redaction layer bounds').toBeTruthy();
+  if (!box) throw new Error('The redaction layer has no bounds.');
+
+  await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.36);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.82, box.y + box.height * 0.58, { steps: 4 });
+  await page.mouse.up();
+
+  await expect(page.getByRole('button', { name: 'Undo' })).toBeEnabled();
+}
+
+async function touchDrag(
+  page: Page,
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+): Promise<void> {
+  const session = await page.context().newCDPSession(page);
+  try {
+    await session.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: from.x, y: from.y, id: 1 }],
+    });
+    for (let step = 1; step <= 5; step += 1) {
+      const progress = step / 5;
+      await session.send('Input.dispatchTouchEvent', {
+        type: 'touchMove',
+        touchPoints: [
+          {
+            x: from.x + (to.x - from.x) * progress,
+            y: from.y + (to.y - from.y) * progress,
+            id: 1,
+          },
+        ],
+      });
+      await page.waitForTimeout(16);
+    }
+    await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  } finally {
+    await session.detach();
+  }
+}
+
+test('English landing exposes detector review coverage and has no third-party egress', async ({
   page,
   browserName,
 }) => {
@@ -154,14 +211,12 @@ test('landing, detector copy, keyboard focus, mobile layout, and zero third-part
     }
   });
 
-  await page.goto('./');
+  await page.goto('./?lang=en');
   await expect(page.getByRole('heading', { name: /screenshot shield/i })).toBeVisible();
-  // Local-only privacy claim; expanded regex catches redesigned copy in any English phrasing
   await expect(
     page.getByText(/browser|local|same-origin|never leaves|locally|in-browser/i).first(),
   ).toBeVisible();
-  // Detector labels are tested in the default (English) locale.
-  // Regexes are broadened to survive idiomatic rewording while preserving intent.
+
   for (const detector of [
     /email/i,
     /phone|sms/i,
@@ -181,33 +236,142 @@ test('landing, detector copy, keyboard focus, mobile layout, and zero third-part
   expect(thirdPartyRequests, `${browserName} made third-party requests`).toEqual([]);
 });
 
-test('import, manual redaction, and PNG export use a fresh opaque canvas', async ({ page }) => {
-  await page.goto('./');
+test('synthetic screenshots do not produce synthetic OCR suggestions or redactions', async ({
+  page,
+}) => {
+  await page.goto('./?view=editor&lang=en');
   await importSyntheticScreenshot(page);
 
+  await page.getByRole('button', { name: 'Review local suggestions' }).click();
+  await expect(page.getByRole('status').first()).toContainText(
+    'Automatic suggestions are unavailable.',
+  );
+  await expect(page.getByRole('list', { name: 'Detection suggestions' })).toBeEmpty();
+  await expect(page.getByRole('list', { name: 'Redaction regions' })).toContainText(
+    'No redactions yet.',
+  );
+});
+
+test('prepared PNG is both downloaded and shared as the same fresh redacted file', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const persistenceActivity: string[] = [];
+    Object.defineProperty(window, '__shieldPersistenceActivity', {
+      configurable: true,
+      value: persistenceActivity,
+    });
+
+    const originalSetItem = Storage.prototype.setItem;
+    Object.defineProperty(Storage.prototype, 'setItem', {
+      configurable: true,
+      value(this: Storage, key: string, value: string) {
+        const area =
+          this === window.localStorage
+            ? 'local'
+            : this === window.sessionStorage
+              ? 'session'
+              : 'unknown';
+        persistenceActivity.push(`storage:${area}:${key}:${value}`);
+        return originalSetItem.call(this, key, value);
+      },
+    });
+
+    if (typeof IDBFactory !== 'undefined') {
+      const originalOpen = IDBFactory.prototype.open;
+      Object.defineProperty(IDBFactory.prototype, 'open', {
+        configurable: true,
+        value(this: IDBFactory, ...args: unknown[]) {
+          persistenceActivity.push(`indexeddb:${String(args[0] ?? '')}`);
+          return Reflect.apply(originalOpen, this, args);
+        },
+      });
+    }
+    if (typeof CacheStorage !== 'undefined') {
+      const originalOpen = CacheStorage.prototype.open;
+      Object.defineProperty(CacheStorage.prototype, 'open', {
+        configurable: true,
+        value(this: CacheStorage, ...args: unknown[]) {
+          persistenceActivity.push(`cache:${String(args[0] ?? '')}`);
+          return Reflect.apply(originalOpen, this, args);
+        },
+      });
+    }
+    if (typeof ServiceWorkerContainer !== 'undefined') {
+      const originalRegister = ServiceWorkerContainer.prototype.register;
+      Object.defineProperty(ServiceWorkerContainer.prototype, 'register', {
+        configurable: true,
+        value(this: ServiceWorkerContainer, ...args: unknown[]) {
+          persistenceActivity.push(`service-worker:${String(args[0] ?? '')}`);
+          return Reflect.apply(originalRegister, this, args);
+        },
+      });
+    }
+
+    Object.defineProperty(navigator, 'canShare', {
+      configurable: true,
+      value: (data: { files?: File[] }) => Array.isArray(data.files) && data.files.length === 1,
+    });
+    Object.defineProperty(navigator, 'share', {
+      configurable: true,
+      value: async (data: { files: File[] }) => {
+        const file = data.files[0];
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        let hash = 0x811c9dc5;
+        for (const byte of bytes) {
+          hash ^= byte;
+          hash = Math.imul(hash, 0x01000193);
+        }
+        document.documentElement.dataset.sharedFileName = file.name;
+        document.documentElement.dataset.sharedFileType = file.type;
+        document.documentElement.dataset.sharedFileChecksum = (hash >>> 0)
+          .toString(16)
+          .padStart(8, '0');
+      },
+    });
+  });
+
+  const expectedOrigin = new URL(
+    process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:4173/screenshot-shield/',
+  ).origin;
+  const lifecycleRequests: string[] = [];
+  const webSockets: string[] = [];
+  let imageLifecycleStarted = false;
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (!url.protocol.startsWith('http')) return;
+
+    const allowedBootstrapRequest =
+      !imageLifecycleStarted &&
+      request.method() === 'GET' &&
+      url.origin === expectedOrigin &&
+      ((request.isNavigationRequest() && url.pathname === '/screenshot-shield/') ||
+        (url.search === '' &&
+          (/^\/screenshot-shield\/assets\/[A-Za-z0-9_-]+\.(?:js|css)$/.test(url.pathname) ||
+            url.pathname === '/screenshot-shield/manifest.webmanifest' ||
+            /^\/screenshot-shield\/icons\/[A-Za-z0-9_-]+\.png$/.test(url.pathname))));
+    if (!allowedBootstrapRequest) {
+      lifecycleRequests.push(`${request.method()} ${request.url()}`);
+    }
+  });
+  page.on('websocket', (socket) => webSockets.push(socket.url()));
+
+  await page.goto('./?view=editor&installed=1&lang=en');
+  imageLifecycleStarted = true;
+
+  await importSyntheticScreenshot(page);
   await editorCanvas(page);
-  const drawingLayer = page.locator('.region-layer');
-  await expect(drawingLayer, 'redaction drawing layer').toBeVisible();
-  await drawingLayer.scrollIntoViewIfNeeded();
-  const box = await drawingLayer.boundingBox();
-  expect(box, 'redaction layer bounds').toBeTruthy();
-  if (!box) return;
+  const prepareButton = page.getByRole('button', { name: 'Prepare redacted file' });
+  await expect(prepareButton).toBeDisabled();
+  await drawManualRedaction(page);
+  await expect(prepareButton).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Download or save' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeDisabled();
 
-  const manualButton = page.getByRole('button', { name: /manual|rectangle|redact/i }).first();
-  if (await manualButton.isVisible().catch(() => false)) await manualButton.click();
-
-  await drawingLayer.hover({ position: { x: box.width * 0.2, y: box.height * 0.36 } });
-  await page.mouse.down();
-  await drawingLayer.hover({ position: { x: box.width * 0.82, y: box.height * 0.58 } });
-  await page.mouse.up();
-
-  await expect(page.getByRole('button', { name: /undo/i })).toBeEnabled();
-
-  // Read the actual region box position (inline style px values equal image coords at zoom 1)
   const regionBox = page.locator('.region-box').first();
   await expect(regionBox).toBeVisible();
-  const regionStyle = await regionBox.evaluate((el: HTMLElement) => {
-    const { left, top, width, height } = el.style;
+  const regionStyle = await regionBox.evaluate((element: HTMLElement) => {
+    const { left, top, width, height } = element.style;
     return {
       left: parseFloat(left),
       top: parseFloat(top),
@@ -216,22 +380,43 @@ test('import, manual redaction, and PNG export use a fresh opaque canvas', async
     };
   });
 
+  await page.getByRole('button', { name: 'Prepare redacted file' }).click();
+  await expect(page.getByText('Your redacted file is ready to share or save.')).toBeVisible();
+
   const download = await Promise.all([
     page.waitForEvent('download'),
-    page
-      .getByRole('button', { name: /export.*png|download.*png|png/i })
-      .first()
-      .click(),
+    page.getByRole('button', { name: 'Download or save' }).click(),
   ]).then(([file]) => file);
+  expect(download.suggestedFilename()).toBe('screenshot-shield-redacted.png');
+
+  await page.getByRole('button', { name: 'Share' }).click();
+  await expect(page.locator('html')).toHaveAttribute(
+    'data-shared-file-name',
+    download.suggestedFilename(),
+  );
+  await expect(page.locator('html')).toHaveAttribute('data-shared-file-type', 'image/png');
+  await expect(
+    page.getByText('Shared. The prepared file is still available to download or save.'),
+  ).toBeVisible();
+
   const downloadPath = await download.path();
   expect(downloadPath, 'download path').toBeTruthy();
   if (!downloadPath) return;
 
-  const decoded = decodePng(await readFile(downloadPath));
+  const downloadedBytes = await readFile(downloadPath);
+  await expect(page.locator('html')).toHaveAttribute(
+    'data-shared-file-checksum',
+    byteChecksum(downloadedBytes),
+  );
+  expect(
+    downloadedBytes.equals(syntheticPng()),
+    'prepared output must not reuse source bytes',
+  ).toBe(false);
+
+  const decoded = decodePng(downloadedBytes);
   expect(decoded.width).toBe(320);
   expect(decoded.height).toBe(180);
 
-  // Sample the center of the actual drawn region (zoom=1 → style px = image px)
   const sampleX = Math.round(regionStyle.left + regionStyle.width / 2);
   const sampleY = Math.round(regionStyle.top + regionStyle.height / 2);
   const offset = (sampleY * decoded.width + sampleX) * 4;
@@ -240,10 +425,209 @@ test('import, manual redaction, and PNG export use a fresh opaque canvas', async
     decoded.rgba[offset] + decoded.rgba[offset + 1] + decoded.rgba[offset + 2],
     'redaction pixel is covered',
   ).toBeLessThan(90);
+
+  await page.getByRole('button', { name: 'Move right' }).click();
+  await expect(page.getByRole('button', { name: 'Download or save' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeDisabled();
+  await expect(page.getByText('Your redacted file is ready to share or save.')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Prepare redacted file' }).click();
+  await expect(page.getByText('Your redacted file is ready to share or save.')).toBeVisible();
+
+  await page.locator('#format').selectOption('image/jpeg');
+  await expect(page.getByRole('button', { name: 'Download or save' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeDisabled();
+
+  await page.getByRole('button', { name: 'Prepare redacted file' }).click();
+  await expect(page.getByText('Your redacted file is ready to share or save.')).toBeVisible();
+
+  await page
+    .locator('input[type="file"]')
+    .first()
+    .setInputFiles({
+      name: 'replacement-screenshot.png',
+      mimeType: 'image/png',
+      buffer: syntheticPng(240, 160),
+    });
+  await expect.poll(() => page.locator('canvas').first().getAttribute('width')).toBe('240');
+  await expect(page.getByRole('button', { name: 'Download or save' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeDisabled();
+  await expect(page.getByText('Your redacted file is ready to share or save.')).toHaveCount(0);
+
+  const persistence = await page.evaluate(async () => ({
+    activity:
+      (window as Window & { __shieldPersistenceActivity?: string[] }).__shieldPersistenceActivity ??
+      [],
+    local: Object.entries(localStorage),
+    session: Object.entries(sessionStorage),
+    databases:
+      typeof indexedDB.databases === 'function'
+        ? (await indexedDB.databases()).map((database) => database.name ?? '')
+        : [],
+    caches: typeof caches === 'undefined' ? [] : await caches.keys(),
+    registrations:
+      'serviceWorker' in navigator
+        ? (await navigator.serviceWorker.getRegistrations()).map(
+            (registration) => registration.scope,
+          )
+        : [],
+    cookie: document.cookie,
+  }));
+  expect(persistence).toEqual({
+    activity: ['storage:local:screenshot-shield.locale:en'],
+    local: [['screenshot-shield.locale', 'en']],
+    session: [],
+    databases: [],
+    caches: [],
+    registrations: [],
+    cookie: '',
+  });
+  expect(lifecycleRequests, 'image lifecycle network egress').toEqual([]);
+  expect(webSockets, 'image lifecycle WebSocket egress').toEqual([]);
+});
+
+const keyboardLocales = [
+  {
+    tag: 'ko',
+    add: '수동 가리기 영역 추가',
+    moveRight: '오른쪽으로 이동',
+    makeWider: '넓게',
+    remove: '선택한 영역 삭제',
+    regionsList: '가리기 영역 목록',
+    noRegions: '아직 가리기 영역이 없습니다.',
+  },
+  {
+    tag: 'en',
+    add: 'Add manual redaction',
+    moveRight: 'Move right',
+    makeWider: 'Make wider',
+    remove: 'Remove selected',
+    regionsList: 'Redaction regions',
+    noRegions: 'No redactions yet.',
+  },
+  {
+    tag: 'zh-CN',
+    add: '添加手动遮盖',
+    moveRight: '向右移动',
+    makeWider: '加宽',
+    remove: '删除所选区域',
+    regionsList: '遮盖区域列表',
+    noRegions: '尚未添加遮盖。',
+  },
+] as const;
+
+for (const locale of keyboardLocales) {
+  test(`keyboard users can complete manual redaction controls in ${locale.tag}`, async ({
+    page,
+  }) => {
+    await page.goto(`./?view=editor&lang=${locale.tag}`);
+    await importSyntheticScreenshot(page);
+    const fileInput = page.locator('input[type="file"]').first();
+    await expect(fileInput).toHaveAttribute('tabindex', '-1');
+    await expect(fileInput).toHaveAttribute('aria-hidden', 'true');
+
+    const addButton = page.getByRole('button', { name: locale.add });
+    await addButton.focus();
+    await page.keyboard.press('Enter');
+
+    const region = page.locator('[data-region-id]').first();
+    await expect(region).toBeVisible();
+    const before = await region.boundingBox();
+    expect(before, 'manual redaction bounds before keyboard adjustment').toBeTruthy();
+    if (!before) throw new Error('The manual redaction has no bounds.');
+
+    const moveRight = page.getByRole('button', { name: locale.moveRight });
+    await moveRight.focus();
+    await page.keyboard.press('Enter');
+    const moved = await region.boundingBox();
+    expect(moved?.x, 'manual redaction x after keyboard move').toBeGreaterThan(before.x);
+
+    const makeWider = page.getByRole('button', { name: locale.makeWider });
+    await makeWider.focus();
+    await page.keyboard.press('Enter');
+    const resized = await region.boundingBox();
+    expect(resized?.width, 'manual redaction width after keyboard resize').toBeGreaterThan(
+      moved?.width ?? before.width,
+    );
+
+    const remove = page.getByRole('button', { name: locale.remove });
+    await remove.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('list', { name: locale.regionsList })).toContainText(
+      locale.noRegions,
+    );
+  });
+}
+
+test('touch users can move, resize, and delete a selected redaction', async ({
+  page,
+  browserName,
+}, testInfo) => {
+  test.skip(
+    browserName !== 'chromium' || testInfo.project.name !== 'mobile-chromium',
+    'requires Chromium touch emulation',
+  );
+
+  await page.goto('./?view=editor&lang=en');
+  await importSyntheticScreenshot(page);
+  const drawingLayer = page.locator('.region-layer');
+  await expect(drawingLayer).toBeVisible();
+  const drawingBox = await drawingLayer.boundingBox();
+  expect(drawingBox, 'redaction layer bounds for touch creation').toBeTruthy();
+  if (!drawingBox) throw new Error('The redaction layer has no bounds for touch creation.');
+  await touchDrag(
+    page,
+    { x: drawingBox.x + drawingBox.width * 0.15, y: drawingBox.y + drawingBox.height * 0.15 },
+    { x: drawingBox.x + drawingBox.width * 0.75, y: drawingBox.y + drawingBox.height * 0.85 },
+  );
+  await expect(page.getByRole('button', { name: 'Undo' })).toBeEnabled();
+
+  const region = page.locator('[data-region-id]').first();
+  const beforeMove = await region.boundingBox();
+  expect(beforeMove, 'redaction bounds before touch move').toBeTruthy();
+  if (!beforeMove) throw new Error('The redaction has no bounds before touch move.');
+
+  const moveStart = {
+    x: beforeMove.x + beforeMove.width / 2,
+    y: beforeMove.y + beforeMove.height / 2,
+  };
+  await touchDrag(page, moveStart, { x: moveStart.x + 24, y: moveStart.y + 16 });
+
+  const afterMove = await region.boundingBox();
+  expect(afterMove, 'redaction bounds after touch move').toBeTruthy();
+  if (!afterMove) throw new Error('The redaction has no bounds after touch move.');
+  expect(afterMove.x).toBeGreaterThan(beforeMove.x + 8);
+  expect(afterMove.y).toBeGreaterThan(beforeMove.y + 8);
+
+  const eastHandle = page.locator('[data-resize-handle="east"]');
+  await expect(eastHandle).toBeVisible();
+  const beforeResize = await region.boundingBox();
+  const handleBox = await eastHandle.boundingBox();
+  expect(beforeResize, 'redaction bounds before touch resize').toBeTruthy();
+  expect(handleBox, 'east resize handle bounds').toBeTruthy();
+  if (!beforeResize || !handleBox) {
+    throw new Error('The selected redaction cannot be resized.');
+  }
+
+  const resizeStart = {
+    x: handleBox.x + handleBox.width / 2,
+    y: handleBox.y + handleBox.height / 2,
+  };
+  await touchDrag(page, resizeStart, { x: resizeStart.x + 24, y: resizeStart.y });
+
+  const afterResize = await region.boundingBox();
+  expect(afterResize, 'redaction bounds after touch resize').toBeTruthy();
+  if (!afterResize) throw new Error('The redaction has no bounds after touch resize.');
+  expect(afterResize.width).toBeGreaterThan(beforeResize.width + 8);
+
+  await page.getByRole('button', { name: 'Remove selected' }).tap();
+  await expect(page.getByRole('list', { name: 'Redaction regions' })).toContainText(
+    'No redactions yet.',
+  );
 });
 
 test('typed import failure is user-facing', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./?view=editor&lang=en');
   const input = page.locator('input[type="file"]').first();
   await expect(input).toBeAttached();
   await input.setInputFiles({

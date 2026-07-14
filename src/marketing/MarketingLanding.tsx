@@ -1,40 +1,85 @@
-import { useEffect, useState } from 'react';
+import { type MouseEvent } from 'react';
 
 import '../styles/marketing.css';
-import { type Locale, detectInitialLocale, localeOptions, marketingCopy } from './i18n';
+import { type Locale, localeOptions, marketingCopy } from './i18n';
 import { RedactionDemo } from './RedactionDemo';
 
+type LocaleNavigationProps = {
+  readonly locale: Locale;
+  readonly localeHref: (locale: Locale) => string;
+  readonly onLocaleChange: (locale: Locale) => void;
+  readonly launchStory?: string;
+};
+
 export type MarketingLandingProps = {
+  readonly locale: Locale;
+  readonly localeHref: (locale: Locale) => string;
+  readonly onLocaleChange: (locale: Locale) => void;
   readonly onStartEditing: () => void;
   readonly appReady?: boolean;
 };
 
-export function MarketingLanding({ onStartEditing, appReady = true }: MarketingLandingProps) {
-  const [locale, setLocale] = useState<Locale>(detectInitialLocale);
-  const copy = marketingCopy[locale];
+function isUnmodifiedPrimaryClick(event: MouseEvent<HTMLAnchorElement>): boolean {
+  return (
+    event.button === 0 &&
+    !event.defaultPrevented &&
+    !event.altKey &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.shiftKey
+  );
+}
 
-  useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
+export function LocaleNavigation({
+  locale,
+  localeHref,
+  onLocaleChange,
+  launchStory,
+}: LocaleNavigationProps) {
+  return (
+    <nav className="lang-switcher" aria-label="Language / 언어 / 语言">
+      {launchStory ? (
+        <a className="story-link" href="./launch.html">
+          {launchStory}
+        </a>
+      ) : null}
+      {localeOptions.map((option) => (
+        <a
+          key={option.value}
+          className={locale === option.value ? 'lang-btn lang-btn--active' : 'lang-btn'}
+          href={localeHref(option.value)}
+          aria-current={locale === option.value ? 'page' : undefined}
+          aria-label={option.label}
+          onClick={(event) => {
+            if (!isUnmodifiedPrimaryClick(event)) return;
+            event.preventDefault();
+            onLocaleChange(option.value);
+          }}
+        >
+          {option.shortLabel}
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+export function MarketingLanding({
+  locale,
+  localeHref,
+  onLocaleChange,
+  onStartEditing,
+  appReady = true,
+}: MarketingLandingProps) {
+  const copy = marketingCopy[locale];
 
   return (
     <div className="marketing-shell" id="top">
-      <nav className="lang-switcher" aria-label="Language / 언어 / 语言">
-        <a className="story-link" href="./launch.html">
-          {copy.hero.launchStory}
-        </a>
-        {localeOptions.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            className={locale === opt.value ? 'lang-btn lang-btn--active' : 'lang-btn'}
-            aria-pressed={locale === opt.value}
-            onClick={() => setLocale(opt.value)}
-          >
-            {opt.shortLabel}
-          </button>
-        ))}
-      </nav>
+      <LocaleNavigation
+        locale={locale}
+        localeHref={localeHref}
+        onLocaleChange={onLocaleChange}
+        launchStory={copy.hero.launchStory}
+      />
 
       <section className="hero-section" aria-labelledby="hero-title">
         <div className="hero-copy">

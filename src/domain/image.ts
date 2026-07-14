@@ -1,5 +1,6 @@
 import { validateImageDimensions, validateImageFile } from './limits';
-import { AppError, type ImageAsset } from './types';
+import { exportRedactedImage } from './redaction';
+import { AppError, type ExportOptions, type ImageAsset } from './types';
 
 function imageFromObjectUrl(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -16,18 +17,25 @@ export async function loadImageAsset(file: File): Promise<ImageAsset> {
   const objectUrl = URL.createObjectURL(file);
   try {
     if ('createImageBitmap' in window) {
-      const bitmap = await createImageBitmap(file).catch(() => null);
+      const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' }).catch(
+        () => null,
+      );
       if (bitmap) {
-        validateImageDimensions(bitmap.width, bitmap.height);
-        return {
-          id: crypto.randomUUID(),
-          fileName: file.name || 'screenshot',
-          mimeType: file.type,
-          width: bitmap.width,
-          height: bitmap.height,
-          bitmap,
-          bytes: file.size,
-        };
+        try {
+          validateImageDimensions(bitmap.width, bitmap.height);
+          return {
+            id: crypto.randomUUID(),
+            fileName: file.name || 'screenshot',
+            mimeType: file.type,
+            width: bitmap.width,
+            height: bitmap.height,
+            bitmap,
+            bytes: file.size,
+          };
+        } catch (error) {
+          bitmap.close();
+          throw error;
+        }
       }
     }
 
@@ -48,6 +56,23 @@ export async function loadImageAsset(file: File): Promise<ImageAsset> {
   } finally {
     URL.revokeObjectURL(objectUrl);
   }
+}
+
+export function preparedImageFileName(format: ExportOptions['format']): string {
+  return format === 'image/png'
+    ? 'screenshot-shield-redacted.png'
+    : 'screenshot-shield-redacted.jpg';
+}
+
+export async function prepareRedactedFile(
+  asset: ImageAsset,
+  options: ExportOptions,
+): Promise<File> {
+  const blob = await exportRedactedImage(asset, options);
+  if (blob.type !== options.format) {
+    throw new AppError('export-failed', 'The sanitized screenshot could not be exported.');
+  }
+  return new File([blob], preparedImageFileName(options.format), { type: options.format });
 }
 
 export function closeImageAsset(asset: ImageAsset | null): void {

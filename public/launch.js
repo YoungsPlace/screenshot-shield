@@ -182,19 +182,12 @@
   const preview = document.querySelector('[data-preview]');
   const shareButtons = [...document.querySelectorAll('[data-share]')];
   const shareStatus = document.querySelector('[data-share-status]');
-  let locale = detectLocale();
-
-  function detectLocale() {
-    const language = (navigator.language || '').toLowerCase();
-    if (language.startsWith('ko')) return 'ko';
-    if (language.startsWith('zh')) return 'zh';
-    return 'en';
-  }
+  let locale = 'ko';
 
   function renderLocale(nextLocale) {
     locale = nextLocale;
     const strings = copy[locale];
-    document.documentElement.lang = locale;
+    document.documentElement.lang = locale === 'zh' ? 'zh-CN' : locale;
     document.title = strings.pageTitle;
 
     document.querySelectorAll('[data-copy]').forEach((element) => {

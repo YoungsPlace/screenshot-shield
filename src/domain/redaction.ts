@@ -1,3 +1,4 @@
+import { clampRect } from './geometry';
 import type { ExportOptions, ImageAsset, RedactionRegion } from './types';
 import { AppError } from './types';
 
@@ -63,7 +64,9 @@ export function renderRedactedCanvas(asset: ImageAsset, options: ExportOptions):
   const canvas = document.createElement('canvas');
   drawBaseImage(canvas, asset);
   const context = getCanvasContext(canvas);
-  for (const region of options.regions) applyRedaction(context, region);
+  for (const region of options.regions) {
+    applyRedaction(context, { ...region, ...clampRect(region, asset) });
+  }
   return canvas;
 }
 
@@ -75,7 +78,7 @@ export function canvasToBlob(
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
-        if (blob) resolve(blob);
+        if (blob?.type === format) resolve(blob);
         else
           reject(new AppError('export-failed', 'The sanitized screenshot could not be exported.'));
       },

@@ -27,7 +27,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Typecheck
         run: npm run typecheck
@@ -43,12 +43,17 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_BASE_PATH: /screenshot-shield/
 
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Playwright e2e
         run: npm run e2e
+        env:
+          VITE_BASE_PATH: /screenshot-shield/
+          PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173/screenshot-shield/
 
       - name: Upload Playwright report on failure
         if: failure()

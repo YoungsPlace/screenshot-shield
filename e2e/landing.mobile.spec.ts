@@ -1,75 +1,261 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type APIResponse, type Page } from '@playwright/test';
 
 const THIRD_PARTY_HOST_RE = /^(?!127\.0\.0\.1$|localhost$|\[::1\]$)/i;
 
 function trackThirdParty(page: Page): string[] {
-  const reqs: string[] = [];
+  const requests: string[] = [];
   page.on('request', (request) => {
     const url = new URL(request.url());
     if (url.protocol.startsWith('http') && THIRD_PARTY_HOST_RE.test(url.hostname)) {
-      reqs.push(request.url());
+      requests.push(request.url());
     }
   });
-  return reqs;
+  return requests;
 }
 
-// ---------------------------------------------------------------------------
-// 390px mobile — readable, no overflow, local-only
-// ---------------------------------------------------------------------------
-test('mobile landing (390px) — readable, no overflow, local-only', async ({ page }) => {
+async function expectNoHorizontalOverflow(page: Page, viewport: number): Promise<void> {
+  const overflows = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+  );
+  expect(overflows, `${viewport}px: horizontal overflow detected`).toBe(false);
+}
+
+async function expectPngAsset(
+  response: APIResponse,
+  expectedSize: number,
+  label: string,
+): Promise<void> {
+  expect(response.ok(), `${label} should resolve`).toBe(true);
+  expect(response.headers()['content-type'], `${label} content type`).toMatch(/^image\/png\b/i);
+  const body = await response.body();
+  expect(
+    body.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
+    `${label} PNG signature`,
+  ).toBe(true);
+  expect(body.readUInt32BE(16), `${label} width`).toBe(expectedSize);
+  expect(body.readUInt32BE(20), `${label} height`).toBe(expectedSize);
+}
+
+test('bare Korean root has exact public links and no third-party egress', async ({ page }) => {
   const thirdPartyRequests = trackThirdParty(page);
 
-  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('./');
 
-  // Product name is present in every locale
-  await expect(page.getByRole('heading', { name: /screenshot shield/i })).toBeVisible();
-
-  // Some local-only privacy claim must be visible
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
   await expect(
-    page.getByText(/local|browser|never leaves|locally|in-browser/i).first(),
+    page.getByRole('heading', { name: 'Screenshot Shield — 공유하기 전에, 먼저 가리세요.' }),
   ).toBeVisible();
 
-  // Primary CTA button is reachable
-  await expect(page.getByRole('button').first()).toBeVisible();
-
-  // First Tab target is focusable (keyboard entry point exists)
-  await page.keyboard.press('Tab');
-  await expect(page.locator(':focus')).toBeVisible();
-
-  // No horizontal scroll at 390px
-  const overflows = await page.evaluate(
-    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+  const navigation = page.getByRole('navigation', { name: 'Language / 언어 / 语言' });
+  await expect(navigation.getByRole('link', { name: '한국어', exact: true })).toHaveAttribute(
+    'href',
+    '?lang=ko',
   );
-  expect(overflows, '390px: horizontal overflow detected').toBe(false);
+  await expect(navigation.getByRole('link', { name: 'English', exact: true })).toHaveAttribute(
+    'href',
+    '?lang=en',
+  );
+  await expect(navigation.getByRole('link', { name: '中文', exact: true })).toHaveAttribute(
+    'href',
+    '?lang=zh-CN',
+  );
 
-  expect(thirdPartyRequests, 'mobile: third-party requests').toEqual([]);
+  expect(thirdPartyRequests, 'bare Korean landing: third-party requests').toEqual([]);
 });
 
-// ---------------------------------------------------------------------------
-// 1440px desktop — readable, no overflow, local-only
-// ---------------------------------------------------------------------------
-test('desktop landing (1440px) — readable, no overflow, local-only', async ({ page }) => {
-  const thirdPartyRequests = trackThirdParty(page);
+test('locale aliases, invalid, and duplicate values canonicalize', async ({ page }) => {
+  await page.goto('./?lang=zh');
+  await expect(page).toHaveURL(/\?lang=zh-CN$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
 
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('./');
+  await page.goto('./?lang=fr');
+  await expect(page).toHaveURL(/\?lang=ko$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
 
-  await expect(page.getByRole('heading', { name: /screenshot shield/i })).toBeVisible();
-
-  // No horizontal scroll at 1440px
-  const overflows = await page.evaluate(
-    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
-  );
-  expect(overflows, '1440px: horizontal overflow detected').toBe(false);
-
-  expect(thirdPartyRequests, 'desktop: third-party requests').toEqual([]);
+  await page.goto('./?lang=en&lang=zh-CN');
+  await expect(page).toHaveURL(/\?lang=ko$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
 });
 
-test('marketing headlines stay balanced without narrow-column wrapping', async ({ page }) => {
+test('locale navigation preserves browser history', async ({ page }) => {
+  await page.goto('./?lang=en');
+  await page.getByRole('link', { name: '中文', exact: true }).click();
+  await expect(page).toHaveURL(/\?lang=zh-CN$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\?lang=en$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+
+  await page.goForward();
+  await expect(page).toHaveURL(/\?lang=zh-CN$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+});
+
+test('installed editor restores locale and falls back when storage fails', async ({ page }) => {
+  await page.goto('./?lang=en');
+  await expect
+    .poll(() => page.evaluate(() => window.localStorage.getItem('screenshot-shield.locale')))
+    .toBe('en');
+
+  await page.goto('./?view=editor&installed=1');
+  await expect(page).toHaveURL(/\?view=editor&installed=1&lang=en$/);
+  await expect(page.getByRole('heading', { name: 'Local screenshot editor' })).toBeVisible();
+  const installedPersistence = await page.evaluate(async () => ({
+    local: Object.entries(localStorage),
+    session: Object.entries(sessionStorage),
+    databases:
+      typeof indexedDB.databases === 'function'
+        ? (await indexedDB.databases()).map((database) => database.name ?? '')
+        : [],
+    caches: typeof caches === 'undefined' ? [] : await caches.keys(),
+  }));
+  expect(installedPersistence).toEqual({
+    local: [['screenshot-shield.locale', 'en']],
+    session: [],
+    databases: [],
+    caches: [],
+  });
+
+  await page.goto('./');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
+
+  await page.addInitScript(() => {
+    Object.defineProperty(Storage.prototype, 'getItem', {
+      configurable: true,
+      value: () => {
+        throw new DOMException('Storage blocked', 'SecurityError');
+      },
+    });
+  });
+  await page.goto('./?view=editor&installed=1');
+  await expect(page).toHaveURL(/\?view=editor&installed=1&lang=ko$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
+});
+
+test('storage access failures never block canonical locale rendering', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get: () => {
+        throw new DOMException('Storage unavailable', 'SecurityError');
+      },
+    });
+  });
+
+  await page.goto('./?view=editor&installed=1');
+  await expect(page).toHaveURL(/\?view=editor&installed=1&lang=ko$/);
+  await expect(page.getByRole('heading', { name: '로컬 스크린샷 편집기' })).toBeVisible();
+});
+
+test('locale navigation stays usable when preference writes fail', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Storage.prototype, 'setItem', {
+      configurable: true,
+      value: () => {
+        throw new DOMException('Storage write blocked', 'QuotaExceededError');
+      },
+    });
+  });
+
+  await page.goto('./?lang=en');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await page.getByRole('link', { name: '中文', exact: true }).click();
+  await expect(page).toHaveURL(/\?lang=zh-CN$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+});
+
+test('view editor keeps chrome; embed editor wins and stays minimal', async ({ page }) => {
+  await page.goto('./?view=editor&lang=en');
+
+  await expect(page.getByRole('navigation')).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Local screenshot editor' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open local editor' })).toHaveCount(0);
+  const ChineseLocale = page.getByRole('link', { name: '中文', exact: true });
+  await expect(ChineseLocale).toHaveAttribute('href', '?view=editor&lang=zh-CN');
+  await ChineseLocale.click();
+  await expect(page).toHaveURL(/\?view=editor&lang=zh-CN$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  await expect(page.getByRole('heading', { name: '本地截图编辑器' })).toBeVisible();
+  await expect(page.getByRole('navigation')).toHaveCount(1);
+
+  await page.goto('./?view=editor&embed=editor&lang=en');
+  await expect(page).toHaveURL(/\?embed=editor&lang=en$/);
+  await expect(page.getByRole('heading', { name: 'Local screenshot editor' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open local editor' })).toHaveCount(0);
+  await expect(page.getByRole('navigation')).toHaveCount(0);
+});
+
+test('each public locale keeps its critical landing-to-editor path visible', async ({ page }) => {
+  const locales = [
+    {
+      tag: 'ko',
+      documentLanguage: 'ko',
+      landingHeading: 'Screenshot Shield — 공유하기 전에, 먼저 가리세요.',
+      startEditing: '로컬 편집기 열기',
+      editorHeading: '로컬 스크린샷 편집기',
+    },
+    {
+      tag: 'en',
+      documentLanguage: 'en',
+      landingHeading: 'Screenshot Shield — Clean it before you share it.',
+      startEditing: 'Open local editor',
+      editorHeading: 'Local screenshot editor',
+    },
+    {
+      tag: 'zh-CN',
+      documentLanguage: 'zh-CN',
+      landingHeading: 'Screenshot Shield — 分享之前，先遮盖敏感信息。',
+      startEditing: '打开本地编辑器',
+      editorHeading: '本地截图编辑器',
+    },
+  ] as const;
+
+  for (const locale of locales) {
+    await page.goto(`./?lang=${locale.tag}`);
+    await expect(page.locator('html')).toHaveAttribute('lang', locale.documentLanguage);
+    await expect(page.getByRole('heading', { name: locale.landingHeading })).toBeVisible();
+    await page.getByRole('button', { name: locale.startEditing }).click();
+    await expect(page.getByRole('heading', { name: locale.editorHeading })).toBeVisible();
+    await expect(page.locator('input[type="file"]')).toBeAttached();
+  }
+});
+
+test('opening the editor from the landing moves focus to its heading', async ({ page }) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: '로컬 편집기 열기' }).click();
+
+  await expect(page.getByRole('heading', { name: '로컬 스크린샷 편집기' })).toBeFocused();
+});
+
+test('skip link reveals the editor and brings its heading into view', async ({ page }) => {
+  await page.goto('./');
+
+  const skipLink = page.getByRole('link', { name: '편집기로 건너뛰기' });
+  await skipLink.focus();
+  await page.keyboard.press('Enter');
+
+  const editorHeading = page.getByRole('heading', { name: '로컬 스크린샷 편집기' });
+  await expect(editorHeading).toBeFocused();
+  await expect(editorHeading).toBeInViewport();
+});
+
+test('landing remains readable without horizontal overflow at mobile and desktop widths', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('./');
+  await expect(page.getByRole('heading', { name: /Screenshot Shield/ })).toBeVisible();
+  await expectNoHorizontalOverflow(page, 390);
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectNoHorizontalOverflow(page, 1440);
+});
+
+test('marketing headline layout stays within its tolerant contract', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('./');
-  await page.getByRole('button', { name: 'EN', exact: true }).click();
+  await page.getByRole('link', { name: 'English', exact: true }).click();
 
   const heroLineCount = await page.locator('.hero-section h1').evaluate((heading) => {
     const styles = getComputedStyle(heading);
@@ -80,7 +266,6 @@ test('marketing headlines stay balanced without narrow-column wrapping', async (
   expect(heroLineCount, 'desktop hero should not exceed four lines').toBeLessThanOrEqual(4);
 
   await page.setViewportSize({ width: 390, height: 844 });
-
   const sectionHeadings = page.locator(
     '.proof-panel h2, .workflow-section > h2, .detectors-section h2, .limitations-section h2, .faq-section > h2, .final-cta h2',
   );
@@ -109,118 +294,154 @@ test('marketing headlines stay balanced without narrow-column wrapping', async (
   }
 });
 
-// ---------------------------------------------------------------------------
-// Language switcher — KO / EN / 中文 cycle updates document.lang and visible copy
-// ---------------------------------------------------------------------------
-test('language switcher — KO / EN / 中文 cycle changes document lang and visible copy', async ({
-  page,
-}) => {
+test('320px keeps locale and editor entry targets reachable without overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
   await page.goto('./');
+  await expectNoHorizontalOverflow(page, 320);
 
-  // Lane A exposes short-label buttons: KO, EN, 中文 (from localeOptions[].shortLabel)
-  const koControl = page.getByRole('button', { name: 'KO' });
-  const zhControl = page.getByRole('button', { name: '中文' });
-  const enControl = page.getByRole('button', { name: 'EN' });
+  await page.getByRole('link', { name: 'English', exact: true }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await page.getByRole('button', { name: 'Open local editor' }).click();
+  await expect(page.getByRole('heading', { name: 'Local screenshot editor' })).toBeFocused();
+  await expect(page.locator('input[type="file"]')).toBeAttached();
+  await expectNoHorizontalOverflow(page, 320);
+});
 
-  // --- Switch to Korean ---
-  await koControl.first().click();
-  const koLang = await page.evaluate(() => document.documentElement.lang);
-  expect(koLang, 'document.lang after KO switch').toBe('ko');
-  // First heading must contain at least one Hangul syllable
-  const koHeading = await page.getByRole('heading').first().textContent();
-  expect(koHeading, 'Korean heading contains Hangul').toMatch(
-    /[\uAC00-\uD7AF\u1100-\u11FF\u3130-\u318F]/,
+test('public privacy and support pages expose localized web-only boundaries', async ({ page }) => {
+  await page.goto('./privacy.html?lang=en');
+
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.getByRole('heading', { name: 'Privacy Policy' })).toBeVisible();
+  await expect(
+    page.getByText(/has no screenshot\/export upload\s+feature, backend, account system/i),
+  ).toBeVisible();
+  await expect(page.getByText(/no ads, analytics, telemetry, session replay/i)).toBeVisible();
+  await expect(
+    page.getByText(
+      /No iOS or Android native app is claimed as published or available in an app store/i,
+    ),
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Screenshot Shield' })).toHaveAttribute(
+    'href',
+    'https://youngsplace.github.io/screenshot-shield/?lang=en',
   );
+  await expect(page.getByRole('link', { name: '한국어' })).toHaveAttribute('lang', 'ko');
+  await expect(page.getByRole('link', { name: 'English' })).toHaveAttribute('lang', 'en');
+  await expect(page.getByRole('link', { name: '简体中文' })).toHaveAttribute('lang', 'zh-CN');
 
-  // --- Switch to Chinese ---
-  await zhControl.first().click();
-  const zhLang = await page.evaluate(() => document.documentElement.lang);
-  expect(zhLang, 'document.lang after ZH switch').toBe('zh');
-  // First heading must contain at least one CJK character
-  const zhHeading = await page.getByRole('heading').first().textContent();
-  expect(zhHeading, 'Chinese heading contains CJK').toMatch(/[\u4E00-\u9FFF\u3400-\u4DBF]/);
-
-  // --- Switch back to English ---
-  await enControl.first().click();
-  const enLang = await page.evaluate(() => document.documentElement.lang);
-  expect(enLang, 'document.lang after EN switch').toBe('en');
-  // Product name (unchanged across locales) remains visible
-  await expect(page.getByRole('heading', { name: /screenshot shield/i })).toBeVisible();
+  await page.goto('./support.html?lang=zh-CN');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
+  await expect(page.getByRole('heading', { name: '支持' })).toBeVisible();
+  await expect(page.getByRole('link', { name: '简体中文编辑器' })).toHaveAttribute(
+    'href',
+    'https://youngsplace.github.io/screenshot-shield/?view=editor&lang=zh-CN',
+  );
+  await expect(page.getByRole('link', { name: 'Screenshot Shield' })).toHaveAttribute(
+    'href',
+    'https://youngsplace.github.io/screenshot-shield/?lang=zh-CN',
+  );
 });
 
-// ---------------------------------------------------------------------------
-// Localized hero and CTA are visible in each locale after switching
-// ---------------------------------------------------------------------------
-test('localized hero heading and primary CTA are visible in KO, EN, and ZH', async ({ page }) => {
-  await page.goto('./');
+test('every public privacy locale states the web-only local boundary', async ({ page }) => {
+  const locales = [
+    {
+      tag: 'ko',
+      upload: /업로드 기능,\s*백엔드, 계정 또는 앱 서버가 없습니다/,
+      analytics: /광고, 분석, 텔레메트리, 세션 재생/,
+      native: /네이티브 iOS\/Android 앱은 현재 스토어에 출시되었거나 제공된 것으로 주장하지/,
+      offline: /웹 앱에는 서비스 워커나 웹 오프라인 기능이 없습니다/,
+    },
+    {
+      tag: 'en',
+      upload: /no screenshot\/export upload\s+feature, backend, account system, or app server/i,
+      analytics: /no ads, analytics, telemetry, session replay/i,
+      native: /No iOS or Android native app is claimed as published or available in an app store/i,
+      offline: /has no service worker and makes no web-offline claim/i,
+    },
+    {
+      tag: 'zh-CN',
+      upload: /没有截图或导出文件上传功能、后端、账户系统或应用服务器/,
+      analytics: /没有广告、分析、遥测、会话回放/,
+      native: /当前不宣称 iOS 或 Android 原生应用已在任何应用商店发布或可用/,
+      offline: /网页应用没有服务工作线程，也不声明支持网页离线功能/,
+    },
+  ] as const;
 
-  for (const locale of ['KO', 'EN', '中文'] as const) {
-    const btn = page.getByRole('button', { name: locale });
-    await btn.first().click();
-
-    // Hero heading rendered (non-empty)
-    const heading = await page.getByRole('heading').first().textContent();
-    expect(heading?.trim().length, `${locale}: hero heading is non-empty`).toBeGreaterThan(0);
-
-    // At least one actionable CTA button (the editor entry) is visible
-    // The editor CTA is distinct from the locale switcher buttons
-    const ctaButtons = page.getByRole('button').filter({
-      hasNotText: /^(KO|EN|中文)$/,
-    });
-    await expect(ctaButtons.first(), `${locale}: primary CTA visible`).toBeVisible();
+  for (const locale of locales) {
+    await page.goto(`./privacy.html?lang=${locale.tag}`);
+    const article = page.locator(`article[data-language="${locale.tag}"]`);
+    await expect(article).toBeVisible();
+    await expect(article).toContainText(locale.upload);
+    await expect(article).toContainText(locale.analytics);
+    await expect(article).toContainText(locale.native);
+    await expect(article).toContainText(locale.offline);
   }
 });
 
-test('primary CTA reveals the local editor without a reload', async ({ page }) => {
+test('manifest and declared icon paths resolve to installable assets', async ({ page }) => {
   await page.goto('./');
 
-  const editor = page.locator('main#editor-app');
-  await expect(editor).toBeHidden();
+  const manifestHref = await page.locator('link[rel="manifest"]').getAttribute('href');
+  expect(manifestHref).not.toBeNull();
+  if (!manifestHref) throw new Error('The document does not declare a manifest.');
 
-  const primaryCta = page.getByRole('button').filter({
-    hasNotText: /^(KO|EN|中文)$/,
-  });
-  await primaryCta.first().click();
+  const manifestUrl = new URL(manifestHref, page.url()).toString();
+  const manifestResponse = await page.request.get(manifestUrl);
+  expect(manifestResponse.ok()).toBe(true);
+  const manifest = (await manifestResponse.json()) as {
+    start_url: string;
+    icons: Array<{ src: string; sizes: string; type: string; purpose: string }>;
+  };
+  expect(manifest.start_url).toBe('/screenshot-shield/?view=editor&installed=1');
+  expect(manifest.icons).toEqual([
+    {
+      src: 'icons/icon-192.png',
+      sizes: '192x192',
+      type: 'image/png',
+      purpose: 'any',
+    },
+    {
+      src: 'icons/icon-512.png',
+      sizes: '512x512',
+      type: 'image/png',
+      purpose: 'any',
+    },
+    {
+      src: 'icons/maskable-512.png',
+      sizes: '512x512',
+      type: 'image/png',
+      purpose: 'maskable',
+    },
+  ]);
 
-  await expect(editor).toBeVisible();
-  await expect(editor.locator('input[type="file"]')).toBeAttached();
-});
-
-// ---------------------------------------------------------------------------
-// Language switcher controls are keyboard-focusable (Tab navigation)
-// ---------------------------------------------------------------------------
-test('language switcher buttons are keyboard-focusable via Tab', async ({ page }) => {
-  await page.goto('./');
-
-  // Tab through focusable elements; at least one should resolve to a locale control
-  let foundSwitcher = false;
-  for (let i = 0; i < 30; i++) {
-    await page.keyboard.press('Tab');
-    const activeText = await page.evaluate(
-      () => (document.activeElement as HTMLElement | null)?.textContent?.trim() ?? '',
-    );
-    if (/^(KO|EN|中文)$/.test(activeText)) {
-      foundSwitcher = true;
-      // Confirm the focused control can be activated via keyboard
-      await page.keyboard.press('Enter');
-      break;
-    }
+  for (const icon of manifest.icons) {
+    expect(icon.type).toBe('image/png');
+    const expectedSize = Number(icon.sizes.split('x')[0]);
+    expect([192, 512]).toContain(expectedSize);
+    const iconResponse = await page.request.get(new URL(icon.src, manifestUrl).toString());
+    await expectPngAsset(iconResponse, expectedSize, icon.src);
   }
-  expect(foundSwitcher, 'a locale switcher button is reachable via Tab').toBe(true);
+
+  const appleIconHref = await page.locator('link[rel="apple-touch-icon"]').getAttribute('href');
+  expect(appleIconHref).not.toBeNull();
+  if (!appleIconHref) throw new Error('The document does not declare an Apple touch icon.');
+  const appleIconResponse = await page.request.get(new URL(appleIconHref, page.url()).toString());
+  await expectPngAsset(appleIconResponse, 180, appleIconHref);
 });
 
-// ---------------------------------------------------------------------------
-// Reduced-motion — page loads cleanly and remains functional
-// ---------------------------------------------------------------------------
-test('reduced-motion — heading visible and no JS errors', async ({ page }) => {
+test('language links are keyboard-focusable with reduced motion', async ({ page }) => {
   const errors: string[] = [];
-  page.on('pageerror', (err) => errors.push(err.message));
+  page.on('pageerror', (error) => errors.push(error.message));
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('./');
 
-  await expect(page.getByRole('heading', { name: /screenshot shield/i })).toBeVisible();
-  // Primary CTA still reachable under reduced-motion
-  await expect(page.getByRole('button').first()).toBeVisible();
+  const englishLink = page.getByRole('link', { name: 'English', exact: true });
+  await englishLink.focus();
+  await expect(englishLink).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\?lang=en$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.getByRole('heading', { name: /Screenshot Shield/ })).toBeVisible();
   expect(errors, 'JS errors under prefers-reduced-motion: reduce').toEqual([]);
 });

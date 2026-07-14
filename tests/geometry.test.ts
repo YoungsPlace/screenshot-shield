@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  MIN_REDACTION_SIZE,
   clampRect,
   isMeaningfulRect,
+  moveRect,
   normalizeRect,
   rectContainsPoint,
+  resizeRect,
   scaleRect,
 } from '../src/domain/geometry';
 import type { Point, Rect } from '../src/domain/types';
@@ -52,6 +55,69 @@ describe('clampRect', () => {
     const result = clampRect(rect, bounds);
     expect(result.x + result.width).toBeLessThanOrEqual(bounds.width);
     expect(result.y + result.height).toBeLessThanOrEqual(bounds.height);
+  });
+});
+describe('moveRect', () => {
+  const bounds = { width: 100, height: 120 };
+  const rect: Rect = { x: 20, y: 30, width: 40, height: 50 };
+
+  it('keeps the full region inside each image edge', () => {
+    expect(moveRect(rect, { x: -100, y: -100 }, bounds)).toEqual({
+      x: 0,
+      y: 0,
+      width: 40,
+      height: 50,
+    });
+    expect(moveRect(rect, { x: 100, y: 100 }, bounds)).toEqual({
+      x: 60,
+      y: 70,
+      width: 40,
+      height: 50,
+    });
+  });
+});
+
+describe('resizeRect', () => {
+  const bounds = { width: 100, height: 120 };
+  const rect: Rect = { x: 20, y: 30, width: 40, height: 50 };
+
+  it.each([
+    ['north', { x: 40, y: -10 }, { x: 20, y: 0, width: 40, height: 80 }],
+    ['north-east', { x: 120, y: -10 }, { x: 20, y: 0, width: 80, height: 80 }],
+    ['east', { x: 120, y: 50 }, { x: 20, y: 30, width: 80, height: 50 }],
+    ['south-east', { x: 120, y: 150 }, { x: 20, y: 30, width: 80, height: 90 }],
+    ['south', { x: 40, y: 150 }, { x: 20, y: 30, width: 40, height: 90 }],
+    ['south-west', { x: -10, y: 150 }, { x: 0, y: 30, width: 60, height: 90 }],
+    ['west', { x: -10, y: 50 }, { x: 0, y: 30, width: 60, height: 50 }],
+    ['north-west', { x: -10, y: -10 }, { x: 0, y: 0, width: 60, height: 80 }],
+  ] as const)('clamps the %s handle at image edges', (handle, point, expected) => {
+    expect(resizeRect(rect, handle, point, bounds)).toEqual(expected);
+  });
+
+  it('holds the minimum size when a handle is dragged across the opposite edge', () => {
+    expect(resizeRect(rect, 'south-east', { x: 24, y: 34 }, bounds)).toEqual({
+      x: 20,
+      y: 30,
+      width: MIN_REDACTION_SIZE,
+      height: MIN_REDACTION_SIZE,
+    });
+    expect(resizeRect(rect, 'north-west', { x: 58, y: 78 }, bounds)).toEqual({
+      x: 52,
+      y: 72,
+      width: MIN_REDACTION_SIZE,
+      height: MIN_REDACTION_SIZE,
+    });
+  });
+
+  it('uses the available bounds when the image is smaller than the configured minimum', () => {
+    expect(
+      resizeRect(
+        { x: 0, y: 0, width: 4, height: 6 },
+        'south-east',
+        { x: 0, y: 0 },
+        { width: 4, height: 6 },
+      ),
+    ).toEqual({ x: 0, y: 0, width: 4, height: 6 });
   });
 });
 
