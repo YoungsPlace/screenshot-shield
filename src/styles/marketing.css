@@ -49,6 +49,15 @@
   outline: 3px solid #ffbf47;
   outline-offset: 4px;
 }
+.sr-only {
+  block-size: 1px;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
 
 .lang-switcher {
   position: sticky;
@@ -101,17 +110,49 @@
 }
 
 .hero-section {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
-  gap: clamp(28px, 4vw, 72px);
   align-items: center;
+  display: grid;
+  gap: clamp(28px, 4vw, 72px);
+  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+  isolation: isolate;
   min-block-size: 92svh;
   padding-block: clamp(48px, 7vw, 96px);
+  position: relative;
+}
+
+.hero-section::before,
+.hero-section::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+}
+
+.hero-section::before {
+  background: radial-gradient(circle at 38% 38%, #5b82ff, var(--shield-accent) 58%, #102ea8);
+  block-size: clamp(280px, 44vw, 620px);
+  border-radius: 48% 52% 42% 58% / 52% 42% 58% 48%;
+  filter: blur(1px);
+  inline-size: clamp(280px, 44vw, 620px);
+  inset: 50% -18% auto auto;
+  opacity: 0.14;
+  transform: translateY(-50%) rotate(-10deg);
+}
+
+.hero-section::after {
+  background-image: radial-gradient(rgb(35 91 255 / 28%) 1.5px, transparent 1.5px);
+  background-size: 18px 18px;
+  block-size: 220px;
+  inline-size: 220px;
+  inset: 8% auto auto -8%;
+  mask-image: linear-gradient(135deg, #000000, transparent 76%);
 }
 
 .hero-copy {
   display: grid;
   gap: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .eyebrow {
@@ -218,11 +259,15 @@
 }
 
 .redaction-demo {
-  background: rgb(255 255 255 / 82%);
+  background: rgb(255 255 255 / 88%);
   border: 1px solid rgb(217 209 194 / 76%);
   border-radius: var(--shield-radius-xl);
-  box-shadow: var(--shield-shadow);
+  box-shadow:
+    0 32px 90px rgb(21 24 39 / 18%),
+    18px 18px 0 rgb(35 91 255 / 8%);
   padding: clamp(18px, 3vw, 28px);
+  position: relative;
+  z-index: 1;
 }
 
 .demo-card__header,
@@ -437,7 +482,7 @@
 .limitations-section,
 .faq-section,
 .final-cta {
-  padding-block: clamp(56px, 8vw, 104px);
+  padding-block: clamp(44px, 6vw, 76px);
 }
 
 .proof-panel,
@@ -468,6 +513,35 @@
 .proof-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   inline-size: min(720px, 100%);
+}
+.proof-panel {
+  background:
+    radial-gradient(circle at 80% 0%, rgb(35 91 255 / 46%), transparent 36rem), var(--shield-deep);
+  border-radius: var(--shield-radius-xl);
+  box-shadow: 0 30px 90px rgb(21 24 39 / 18%);
+  color: #ffffff;
+  padding-inline: clamp(22px, 5vw, 56px);
+}
+
+.proof-panel .eyebrow {
+  color: #9db7ff;
+}
+
+.proof-panel .proof-grid article {
+  background: rgb(255 255 255 / 8%);
+  border-color: rgb(255 255 255 / 15%);
+  box-shadow: none;
+}
+
+.proof-panel .proof-grid p {
+  color: #cbd3ed;
+}
+
+.proof-panel .proof-icon {
+  color: #8df0d0;
+  font-size: clamp(1.55rem, 2.8vw, 2.5rem);
+  line-height: 0.95;
+  text-transform: uppercase;
 }
 
 .proof-grid article,
@@ -525,7 +599,27 @@
 }
 
 .step-card {
-  min-block-size: 230px;
+  min-block-size: 210px;
+  overflow: hidden;
+  position: relative;
+}
+
+.step-card > span {
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  line-height: 0.72;
+  opacity: 0.16;
+  position: absolute;
+  inset: 22px 20px auto auto;
+}
+
+.step-card h3 {
+  max-inline-size: 12ch;
+  position: relative;
+}
+
+.step-card p {
+  max-inline-size: 30ch;
+  position: relative;
 }
 
 .detectors-section {
@@ -541,35 +635,69 @@
 }
 
 .detector-grid {
+  background: linear-gradient(135deg, rgb(35 91 255 / 28%), transparent 45%), var(--shield-deep);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: var(--shield-radius-xl);
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  padding: 18px;
+  position: relative;
+}
+
+.detector-grid::after {
+  background: linear-gradient(90deg, transparent, #5b82ff, transparent);
+  block-size: 2px;
+  box-shadow: 0 0 24px #5b82ff;
+  content: '';
+  inline-size: 70%;
+  inset: 52% auto auto 15%;
+  opacity: 0.75;
+  pointer-events: none;
+  position: absolute;
+}
+
+.detector-card {
+  background: rgb(255 255 255 / 8%);
+  border-color: rgb(255 255 255 / 12%);
+  box-shadow: none;
+  color: #ffffff;
+  min-block-size: 118px;
+  padding: 18px;
+  position: relative;
+  z-index: 1;
 }
 
 .detector-card code {
-  background: #10131f;
-  border-radius: 12px;
-  color: #f7f8ff;
+  background: #ffffff;
+  border-radius: 10px;
+  color: var(--shield-deep);
   display: block;
-  font-size: 0.9rem;
-  margin-block: 12px;
+  font-size: 0.82rem;
+  margin-block-start: 14px;
   overflow-wrap: anywhere;
-  padding: 12px;
+  padding: 10px;
 }
 
 .limitations-section {
-  background: var(--shield-deep);
+  background:
+    radial-gradient(circle at top right, rgb(255 255 255 / 80%), transparent 24rem), #fff0bd;
+  border: 1px solid #efc95a;
   border-radius: var(--shield-radius-xl);
-  color: #ffffff;
-  margin-block: 36px;
+  color: var(--shield-ink);
+  margin-block: 28px;
   padding-inline: clamp(22px, 5vw, 56px);
 }
 
-.limitations-section .eyebrow,
+.limitations-section .eyebrow {
+  color: var(--shield-warning);
+}
+
 .final-cta .eyebrow {
   color: #9db7ff;
 }
 
 .limits-list {
-  color: #dfe4ff;
+  color: #51451f;
   display: grid;
   gap: 14px;
   inline-size: min(620px, 100%);
@@ -683,6 +811,25 @@
   .final-cta {
     inline-size: min(100% - 20px, 1180px);
   }
+  .proof-grid,
+  .step-list {
+    grid-auto-columns: minmax(250px, 82vw);
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    overflow-x: auto;
+    padding-block-end: 12px;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: thin;
+  }
+
+  .proof-grid article,
+  .step-card {
+    scroll-snap-align: start;
+  }
+
+  .proof-panel {
+    overflow: hidden;
+  }
 
   .hero-section h1 {
     max-inline-size: 9ch;
@@ -720,7 +867,23 @@
   }
 
   .detector-grid {
-    grid-template-columns: 1fr;
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 10px;
+  }
+
+  .detector-card {
+    min-block-size: 100px;
+    padding: 12px;
+  }
+
+  .detector-card h3 {
+    font-size: 0.92rem;
+  }
+
+  .detector-card code {
+    font-size: 0.68rem;
+    padding: 8px;
   }
 
   .redacted-value {

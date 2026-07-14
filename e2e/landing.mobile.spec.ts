@@ -128,6 +128,21 @@ test('localized hero heading and primary CTA are visible in KO, EN, and ZH', asy
   }
 });
 
+test('primary CTA reveals the local editor without a reload', async ({ page }) => {
+  await page.goto('./');
+
+  const editor = page.locator('main#editor-app');
+  await expect(editor).toBeHidden();
+
+  const primaryCta = page.getByRole('button').filter({
+    hasNotText: /^(KO|EN|中文)$/,
+  });
+  await primaryCta.first().click();
+
+  await expect(editor).toBeVisible();
+  await expect(editor.locator('input[type="file"]')).toBeAttached();
+});
+
 // ---------------------------------------------------------------------------
 // Language switcher controls are keyboard-focusable (Tab navigation)
 // ---------------------------------------------------------------------------

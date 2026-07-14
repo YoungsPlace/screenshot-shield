@@ -40,6 +40,11 @@ export type ProofItem = {
   readonly heading: string;
   readonly body: string;
 };
+export type DemoRow = {
+  readonly label: string;
+  readonly value: string;
+  readonly sensitive?: boolean;
+};
 
 export type MarketingCopy = {
   readonly hero: {
@@ -58,6 +63,13 @@ export type MarketingCopy = {
     readonly toggleAfter: string;
     readonly annotationBefore: string;
     readonly annotationAfter: string;
+    readonly previewGroupLabel: string;
+    readonly screenshotLabel: string;
+    readonly sidebarItems: readonly string[];
+    readonly documentTitle: string;
+    readonly status: string;
+    readonly rows: readonly DemoRow[];
+    readonly redactedValue: string;
   };
   readonly proof: {
     readonly eyebrow: string;
@@ -99,7 +111,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
   en: {
     hero: {
       eyebrow: 'Private screenshot redaction',
-      title: 'Screenshot Shield',
+      title: 'Screenshot Shield — Clean it before you share it.',
       lede: 'Paste or drop a screenshot, review suggestions, draw redaction boxes, and export a freshly rendered file—entirely in your browser, nothing sent to a server.',
       primaryCta: 'Open local editor',
       primaryCtaLoading: 'Preparing editor',
@@ -114,23 +126,40 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
       annotationBefore:
         'Sensitive text remains visible until you review suggestions and add regions.',
       annotationAfter: 'Opaque marks replace sensitive regions in the preview and export.',
+      previewGroupLabel: 'Choose preview state',
+      screenshotLabel: 'synthetic screenshot',
+      sidebarItems: ['Incident brief', 'Exports', 'Review'],
+      documentTitle: 'Launch support packet',
+      status: 'Local draft',
+      rows: [
+        { label: 'Owner', value: 'Mina Park' },
+        { label: 'Email', value: 'mina.park@example.test', sensitive: true },
+        { label: 'Phone', value: '+1 (415) 555-0198', sensitive: true },
+        {
+          label: 'Deploy URL',
+          value: 'console.example.test/run?token=demo-secret',
+          sensitive: true,
+        },
+        { label: 'Public note', value: 'Share launch crop with design review' },
+      ],
+      redactedValue: 'Redacted',
     },
     proof: {
       eyebrow: 'Local-only proof',
       heading: 'Designed for short-lived, in-memory work.',
       items: [
         {
-          step: '01',
+          step: '0 uploads',
           heading: 'Same browser session',
           body: 'Imported images are decoded for editing and never written to localStorage, IndexedDB, or remote storage.',
         },
         {
-          step: '02',
+          step: 'RAM only',
           heading: 'Same-origin assets',
           body: 'Detection helpers load from the built site. Manual redaction remains available even if OCR is unavailable.',
         },
         {
-          step: '03',
+          step: 'New file',
           heading: 'New export bytes',
           body: 'Downloads are rendered from a fresh canvas as PNG or JPEG, avoiding original file metadata reuse.',
         },
@@ -187,7 +216,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
         },
         {
           label: 'Long IDs and tokens',
-          example: 'sk_live_demo_7f4c2d9a01b8e3',
+          example: 'token_demo_7f4c2d9a01b8e3',
           note: 'Suggests high-entropy identifiers without claiming every secret is found.',
         },
       ],
@@ -239,7 +268,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
   ko: {
     hero: {
       eyebrow: '브라우저 로컬 스크린샷 가리기',
-      title: 'Screenshot Shield',
+      title: 'Screenshot Shield — 공유하기 전에, 먼저 가리세요.',
       lede: '스크린샷을 붙여넣거나 드래그해서 가져오세요. 제안된 항목을 검토하고 직접 영역을 그린 다음, 새로 렌더링된 파일을 내보냅니다. 모두 브라우저 안에서, 서버 전송 없이.',
       primaryCta: '로컬 편집기 열기',
       primaryCtaLoading: '편집기 준비 중',
@@ -253,23 +282,40 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
       toggleAfter: '이후',
       annotationBefore: '제안을 검토하고 영역을 추가하기 전까지 민감한 정보가 그대로 보입니다.',
       annotationAfter: '불투명 마크가 민감한 영역을 미리보기와 내보내기에서 가립니다.',
+      previewGroupLabel: '미리보기 상태 선택',
+      screenshotLabel: '예시 스크린샷',
+      sidebarItems: ['사고 요약', '내보내기', '검토'],
+      documentTitle: '출시 지원 자료',
+      status: '로컬 초안',
+      rows: [
+        { label: '담당자', value: '박민아' },
+        { label: '이메일', value: 'mina.park@example.test', sensitive: true },
+        { label: '전화번호', value: '+82 10-1234-5678', sensitive: true },
+        {
+          label: '배포 URL',
+          value: 'console.example.test/run?token=demo-secret',
+          sensitive: true,
+        },
+        { label: '공개 메모', value: '디자인 검토용 출시 화면 공유' },
+      ],
+      redactedValue: '가려짐',
     },
     proof: {
       eyebrow: '로컬 전용 보증',
       heading: '단기, 인메모리 작업을 위해 설계되었습니다.',
       items: [
         {
-          step: '01',
+          step: '업로드 0',
           heading: '같은 브라우저 세션',
           body: '가져온 이미지는 메모리에서만 처리되며 localStorage, IndexedDB, 원격 저장소에 저장되지 않습니다.',
         },
         {
-          step: '02',
+          step: 'RAM 전용',
           heading: '동일 출처 에셋',
           body: '감지 도우미는 빌드된 사이트에서 로드됩니다. OCR을 사용할 수 없어도 수동 편집은 항상 가능합니다.',
         },
         {
-          step: '03',
+          step: '새 파일',
           heading: '새로운 내보내기 파일',
           body: '다운로드는 새 캔버스에서 PNG 또는 JPEG로 렌더링되며 원본 파일 메타데이터를 재사용하지 않습니다.',
         },
@@ -326,7 +372,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
         },
         {
           label: '긴 ID 및 토큰',
-          example: 'sk_live_demo_7f4c2d9a01b8e3',
+          example: 'token_demo_7f4c2d9a01b8e3',
           note: '고엔트로피 식별자를 제안하지만 모든 비밀을 찾는다고 주장하지 않습니다.',
         },
       ],
@@ -378,7 +424,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
   zh: {
     hero: {
       eyebrow: '本地隐私截图编辑',
-      title: 'Screenshot Shield',
+      title: 'Screenshot Shield — 分享之前，先遮盖敏感信息。',
       lede: '粘贴、拖入或选择截图，检查自动标记的敏感内容，手动划定遮盖区域，导出全新渲染的文件——全程在浏览器本地完成，无任何上传。',
       primaryCta: '打开本地编辑器',
       primaryCtaLoading: '编辑器准备中',
@@ -392,23 +438,40 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
       toggleAfter: '处理后',
       annotationBefore: '在检查建议并添加遮盖区域之前，敏感文本将保持可见。',
       annotationAfter: '不透明标记在预览和导出中替换敏感区域。',
+      previewGroupLabel: '选择预览状态',
+      screenshotLabel: '示例截图',
+      sidebarItems: ['事件摘要', '导出', '检查'],
+      documentTitle: '发布支持资料',
+      status: '本地草稿',
+      rows: [
+        { label: '负责人', value: '林敏' },
+        { label: '邮箱', value: 'lin.min@example.test', sensitive: true },
+        { label: '电话', value: '+86 138 0013 8000', sensitive: true },
+        {
+          label: '部署链接',
+          value: 'console.example.test/run?token=demo-secret',
+          sensitive: true,
+        },
+        { label: '公开备注', value: '与设计评审共享发布截图' },
+      ],
+      redactedValue: '已遮盖',
     },
     proof: {
       eyebrow: '纯本地处理证明',
       heading: '专为短暂的内存操作而设计。',
       items: [
         {
-          step: '01',
+          step: '0 次上传',
           heading: '同一浏览器会话',
           body: '导入的图像仅在内存中解码用于编辑，不会写入 localStorage、IndexedDB 或任何远程存储。',
         },
         {
-          step: '02',
+          step: '仅内存',
           heading: '同源资源',
           body: '检测辅助工具从构建好的站点加载。即使 OCR 不可用，手动遮盖功能也始终可用。',
         },
         {
-          step: '03',
+          step: '新文件',
           heading: '全新导出文件',
           body: '下载内容从全新画布渲染为 PNG 或 JPEG，不会复用原始文件的任何元数据。',
         },
@@ -465,7 +528,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
         },
         {
           label: '长 ID 和令牌',
-          example: 'sk_live_demo_7f4c2d9a01b8e3',
+          example: 'token_demo_7f4c2d9a01b8e3',
           note: '建议标记高熵标识符，但不保证发现所有敏感内容。',
         },
       ],

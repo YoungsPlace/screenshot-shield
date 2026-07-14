@@ -25,7 +25,7 @@
     <text x="0" y="196" fill="#ffffff" font-family="ui-sans-serif,system-ui,sans-serif" font-size="78" font-weight="900" letter-spacing="-4">you share.</text>
 
     <!-- Subline -->
-    <text x="0" y="252" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="21">Local editor · OCR-assisted · No upload</text>
+    <text x="0" y="252" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="21">EN · 한국어 · 中文 · No upload</text>
 
     <!-- CTA pill -->
     <rect y="282" width="224" height="48" rx="24" fill="#235bff"/>
@@ -63,7 +63,7 @@
     <text x="14" y="134" fill="#dde0ee" font-family="ui-sans-serif,system-ui,sans-serif" font-size="12">+1 (415) 555-0198</text>
     <rect x="0" y="146" width="218" height="1" fill="#252836"/>
     <text x="14" y="166" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">TOKEN</text>
-    <text x="14" y="184" fill="#dde0ee" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11">sk_live_7f4c2d9a01b8</text>
+    <text x="14" y="184" fill="#dde0ee" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11">token_demo_7f4c2d9a01b8</text>
     <rect x="0" y="196" width="218" height="1" fill="#252836"/>
     <text x="14" y="216" fill="#596074" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="1">URL</text>
     <text x="14" y="234" fill="#dde0ee" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11">app.ex/reset?token=secret</text>
