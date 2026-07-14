@@ -5,6 +5,9 @@ import { ScreenshotEditor } from './editor/ScreenshotEditor';
 export default function App() {
   const editorRef = useRef<HTMLElement | null>(null);
   const [editorOpen, setEditorOpen] = useState(false);
+  const embeddedEditor =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('embed') === 'editor';
   const revealEditor = () => setEditorOpen(true);
   const focusEditor = () => {
     revealEditor();
@@ -16,6 +19,16 @@ export default function App() {
       }, 100);
     });
   };
+
+  if (embeddedEditor) {
+    return (
+      <div className="app-shell app-shell--embedded">
+        <main id="editor-app">
+          <ScreenshotEditor />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell">

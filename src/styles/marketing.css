@@ -72,6 +72,21 @@
   -webkit-backdrop-filter: blur(12px);
   border-block-end: 1px solid rgb(217 209 194 / 40%);
 }
+.story-link {
+  align-self: center;
+  color: var(--shield-accent-strong);
+  font-size: 0.82rem;
+  font-weight: 800;
+  margin-inline-end: auto;
+  padding: 6px 8px;
+  text-decoration: none;
+}
+
+.story-link:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
 
 .lang-btn {
   background: transparent;

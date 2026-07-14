@@ -20,6 +20,9 @@ export function MarketingLanding({ onStartEditing, appReady = true }: MarketingL
   return (
     <div className="marketing-shell" id="top">
       <nav className="lang-switcher" aria-label="Language / 언어 / 语言">
+        <a className="story-link" href="./launch.html">
+          {copy.hero.launchStory}
+        </a>
         {localeOptions.map((opt) => (
           <button
             key={opt.value}

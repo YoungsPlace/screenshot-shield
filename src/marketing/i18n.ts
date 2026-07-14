@@ -54,6 +54,7 @@ export type MarketingCopy = {
     readonly primaryCta: string;
     readonly primaryCtaLoading: string;
     readonly secondaryLink: string;
+    readonly launchStory: string;
     readonly trustBadges: readonly string[];
   };
   readonly demo: {
@@ -116,6 +117,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
       primaryCta: 'Open local editor',
       primaryCtaLoading: 'Preparing editor',
       secondaryLink: 'See privacy model',
+      launchStory: 'Read the launch story',
       trustBadges: ['No upload endpoint', 'Manual fallback always on', 'Fresh-canvas export'],
     },
     demo: {
@@ -273,6 +275,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
       primaryCta: '로컬 편집기 열기',
       primaryCtaLoading: '편집기 준비 중',
       secondaryLink: '프라이버시 모델 보기',
+      launchStory: '출시 스토리 보기',
       trustBadges: ['업로드 엔드포인트 없음', '수동 편집 항상 가능', '새 캔버스로 내보내기'],
     },
     demo: {
@@ -429,6 +432,7 @@ export const marketingCopy: Record<Locale, MarketingCopy> = {
       primaryCta: '打开本地编辑器',
       primaryCtaLoading: '编辑器准备中',
       secondaryLink: '了解隐私说明',
+      launchStory: '阅读发布故事',
       trustBadges: ['无上传接口', '手动遮盖始终可用', '全新画布导出'],
     },
     demo: {

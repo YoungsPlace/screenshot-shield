@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="The story behind Screenshot Shield, with a live local-only screenshot redaction editor you can try in the page."
+    />
+    <meta name="theme-color" content="#080b13" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="Screenshot Shield" />
+    <meta property="og:title" content="Screenshot Shield — The launch story" />
+    <meta
+      property="og:description"
+      content="Why we built a local-only screenshot redactor, plus a live editor you can try without uploading an image."
+    />
+    <meta property="og:image" content="./social-card.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Screenshot Shield — The launch story" />
+    <meta
+      name="twitter:description"
+      content="A local-only screenshot redactor you can try directly in the launch story."
+    />
+    <meta name="twitter:image" content="./social-card.svg" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./launch.css" />
+    <title>Screenshot Shield — The launch story</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#live-demo" data-copy="skip">Skip to the live demo</a>
+
+    <header class="launch-nav">
+      <a class="brand" href="./" aria-label="Screenshot Shield home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        Screenshot Shield
+      </a>
+      <div class="nav-actions">
+        <div class="locale-switcher" aria-label="Language / 언어 / 语言">
+          <button type="button" data-locale="ko">KO</button>
+          <button type="button" data-locale="en" aria-pressed="true">EN</button>
+          <button type="button" data-locale="zh">中文</button>
+        </div>
+        <button class="share-button" type="button" data-share data-copy="share">Share</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="launch-hero" aria-labelledby="launch-title">
+        <div class="hero-copy">
+          <p class="kicker" data-copy="kicker">The launch story</p>
+          <h1 id="launch-title" data-copy="title">
+            The screenshot looked safe. Until you zoomed in.
+          </h1>
+          <p class="hero-lede" data-copy="lede">
+            Support tickets, product updates, and launch posts leak more than we notice. Screenshot
+            Shield makes the final privacy check visual, local, and fast.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#live-demo" data-copy="try"
+              >Try the live editor</a
+            >
+            <a class="button button-secondary" href="./" data-copy="product">Open the product</a>
+          </div>
+          <ul class="signal-list" aria-label="Product safeguards">
+            <li><strong>0</strong><span data-copy="signalUpload">upload endpoints</span></li>
+            <li><strong>RAM</strong><span data-copy="signalMemory">session memory</span></li>
+            <li><strong>NEW</strong><span data-copy="signalExport">export bytes</span></li>
+          </ul>
+        </div>
+
+        <div class="launch-preview is-after" data-preview>
+          <div class="preview-topline">
+            <div>
+              <span class="preview-eyebrow" data-copy="previewEyebrow">Interactive preview</span>
+              <h2 data-copy="previewTitle">What changes before you share</h2>
+            </div>
+            <div
+              class="preview-toggle"
+              role="group"
+              aria-label="Preview state"
+              data-copy-aria="previewAria"
+            >
+              <button type="button" data-mode="before" data-copy="before">Before</button>
+              <button type="button" data-mode="after" data-copy="after" aria-pressed="true">
+                After
+              </button>
+            </div>
+          </div>
+
+          <div class="preview-window" aria-live="polite">
+            <div class="window-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="window-layout">
+              <aside aria-hidden="true">
+                <b>Shield</b>
+                <span class="active" data-copy="navBrief">Launch brief</span>
+                <span data-copy="navAssets">Assets</span>
+                <span data-copy="navReview">Review</span>
+              </aside>
+              <div class="window-main">
+                <div class="document-title">
+                  <b data-copy="document">Partner announcement</b>
+                  <span data-copy="draft">Local draft</span>
+                </div>
+                <div class="record-list">
+                  <div><span data-copy="owner">Owner</span><code>Mina Park</code></div>
+                  <div class="sensitive">
+                    <span data-copy="email">Email</span><code>mina@example.test</code>
+                  </div>
+                  <div class="sensitive">
+                    <span data-copy="phone">Phone</span><code>+1 415 555 0198</code>
+                  </div>
+                  <div class="sensitive">
+                    <span data-copy="token">Invite token</span><code>token_demo_84c2a9</code>
+                  </div>
+                  <div>
+                    <span data-copy="note">Public note</span
+                    ><code data-copy="noteValue">Ready for design review</code>
+                  </div>
+                </div>
+                <p class="preview-caption" data-copy="previewCaption">
+                  Toggle the preview. The share-safe copy replaces selected regions before export.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="story-section" aria-labelledby="story-title">
+        <div class="section-heading">
+          <p class="kicker" data-copy="whyKicker">Why we built it</p>
+          <h2 id="story-title" data-copy="whyTitle">
+            Privacy tools should feel like part of publishing.
+          </h2>
+          <p data-copy="whyBody">
+            Redaction is usually treated as cleanup after the work is finished. We moved it into the
+            sharing moment, where the risk is easiest to understand.
+          </p>
+        </div>
+        <div class="story-grid">
+          <article>
+            <span>01</span>
+            <h3 data-copy="storyOneTitle">See the leak</h3>
+            <p data-copy="storyOneBody">
+              A realistic before-and-after view makes hidden identifiers obvious.
+            </p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3 data-copy="storyTwoTitle">Keep control</h3>
+            <p data-copy="storyTwoBody">
+              Suggestions are a checklist. You decide every final region.
+            </p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3 data-copy="storyThreeTitle">Export new bytes</h3>
+            <p data-copy="storyThreeBody">
+              A fresh canvas creates a new PNG or JPEG instead of reusing the source file.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="manifesto" aria-label="Product principle">
+        <p data-copy="manifesto">
+          Your screenshot should not need to visit a server to become safer.
+        </p>
+        <div class="manifesto-orbit" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+      </section>
+
+      <section class="live-demo" id="live-demo" aria-labelledby="demo-title">
+        <div class="demo-heading">
+          <div>
+            <p class="kicker" data-copy="demoKicker">Live, not a mockup</p>
+            <h2 id="demo-title" data-copy="demoTitle">Try the real editor here.</h2>
+          </div>
+          <p data-copy="demoBody">
+            Choose a screenshot below. The embedded editor uses the same local-only workflow as the
+            main product. Nothing is uploaded by this page.
+          </p>
+        </div>
+        <div class="editor-frame-shell">
+          <div class="editor-frame-bar">
+            <span class="live-dot"></span>
+            <span data-copy="demoBadge">Running locally in this tab</span>
+            <a href="./?embed=editor" target="_blank" rel="noopener" data-copy="openTab"
+              >Open in a new tab</a
+            >
+          </div>
+          <iframe
+            src="./?embed=editor"
+            title="Live Screenshot Shield editor"
+            data-copy-title="frameTitle"
+            loading="eager"
+            allow="clipboard-read; clipboard-write"
+          ></iframe>
+        </div>
+      </section>
+
+      <section class="share-panel" aria-labelledby="share-title">
+        <div>
+          <p class="kicker" data-copy="shareKicker">Built to pass along</p>
+          <h2 id="share-title" data-copy="shareTitle">Share the story, not a privacy promise.</h2>
+          <p data-copy="shareBody">
+            The product is a review aid with honest limits. The useful claim is simple: your source
+            image stays in your browser.
+          </p>
+        </div>
+        <div class="share-actions">
+          <button class="button button-light" type="button" data-share data-copy="shareStory">
+            Share this launch
+          </button>
+          <a class="button button-ghost" href="./" data-copy="start">Start redacting</a>
+        </div>
+        <p class="share-status" role="status" aria-live="polite" data-share-status></p>
+      </section>
+    </main>
+
+    <footer>
+      <a href="./">Screenshot Shield</a>
+      <span data-copy="footer">Local screenshot redaction. No upload endpoint.</span>
+    </footer>
+
+    <script src="./launch.js" defer></script>
+  </body>
+</html>

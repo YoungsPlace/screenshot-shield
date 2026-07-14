@@ -7,7 +7,7 @@
 [![CI](https://github.com/YoungsPlace/screenshot-shield/actions/workflows/ci.yml/badge.svg)](https://github.com/YoungsPlace/screenshot-shield/actions/workflows/ci.yml)
 [![Deploy](https://github.com/YoungsPlace/screenshot-shield/actions/workflows/deploy.yml/badge.svg)](https://github.com/YoungsPlace/screenshot-shield/actions/workflows/deploy.yml)
 
-[**Open the live editor**](https://youngsplace.github.io/screenshot-shield/) · English · 한국어 · 中文
+[**Open the live editor**](https://youngsplace.github.io/screenshot-shield/) · [**Read and try the launch story**](https://youngsplace.github.io/screenshot-shield/launch.html) · English · 한국어 · 中文
 
 <img src="./public/social-card.svg" alt="Screenshot Shield before and after redaction preview" width="900" />
 
