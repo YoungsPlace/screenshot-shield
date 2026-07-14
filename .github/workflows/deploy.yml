@@ -1,0 +1,98 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Verify and package static site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Unit and component tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BASE_PATH: /screenshot-shield/
+
+      - name: Inspect built output for forbidden remote URLs and obvious secrets
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const root = 'dist';
+          const forbidden = [/https?:\/\//i, /sk_live_[A-Za-z0-9_\-]+/, /AKIA[0-9A-Z]{16}/];
+          const files = [];
+          function walk(dir) {
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) walk(full);
+              else files.push(full);
+            }
+          }
+          walk(root);
+          const offenders = [];
+          for (const file of files) {
+            if (/\.(png|jpe?g|webp|ico|woff2?)$/i.test(file)) continue;
+            const text = fs.readFileSync(file, 'utf8');
+            for (const pattern of forbidden) if (pattern.test(text)) offenders.push(`${file}: ${pattern}`);
+          }
+          if (offenders.length) {
+            console.error(offenders.join('\n'));
+            process.exit(1);
+          }
+          console.log(`Inspected ${files.length} built files; no forbidden remote URLs or obvious secrets found.`);
+          NODE
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
