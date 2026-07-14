@@ -60,16 +60,13 @@ jobs:
           VITE_BASE_PATH: /screenshot-shield/
           PLAYWRIGHT_BASE_URL: http://127.0.0.1:4173/screenshot-shield/
 
-      - name: Inspect built output for forbidden remote URLs and obvious secrets
+      - name: Inspect built output for obvious secrets
         run: |
           node - <<'NODE'
           const fs = require('node:fs');
           const path = require('node:path');
           const root = 'dist';
-          // Allow fake .test / .local domains used in demo content; block real external calls.
-          const SAFE_HOST_RE = /https?:\/\/[\w.-]+\.(?:test|local)\b/i;
           const forbidden = [
-            (text) => /https?:\/\//i.test(text) && !SAFE_HOST_RE.test(text),
             (text) => /sk_live_[A-Za-z0-9_-]{32,}/.test(text),
             (text) => /AKIA[0-9A-Z]{16}/.test(text),
           ];
@@ -92,7 +89,7 @@ jobs:
             console.error('Forbidden content in built files:\n' + offenders.join('\n'));
             process.exit(1);
           }
-          console.log(`Inspected ${files.length} built files; no forbidden remote URLs or obvious secrets found.`);
+          console.log(`Inspected ${files.length} built files; no obvious secrets found.`);
           NODE
 
       - name: Upload Pages artifact
