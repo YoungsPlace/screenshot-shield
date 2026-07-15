@@ -1,16 +1,62 @@
-# Screenshot Shield
+<p align="center">
+  <img src="./public/icons/icon-192.png" width="112" height="112" alt="Screenshot Shield 방패 로고" />
+</p>
 
-## Use the service
+<h1 align="center">Screenshot Shield</h1>
 
-- **한국어:** https://youngsplace.github.io/screenshot-shield/?lang=ko
-- **English:** https://youngsplace.github.io/screenshot-shield/?lang=en
-- **简体中文:** https://youngsplace.github.io/screenshot-shield/?lang=zh-CN
+<p align="center">
+  <strong>공유하기 전에, 먼저 가리세요.</strong><br />
+  스크린샷을 서버에 올리지 않고 브라우저 안에서 직접 검토하고 가리는<br />
+  한국어 우선 · 다국어 · 로컬 전용 프라이버시 편집기
+</p>
+
+<p align="center">
+  <a href="https://github.com/YoungsPlace/screenshot-shield/actions/workflows/ci.yml">
+    <img src="https://github.com/YoungsPlace/screenshot-shield/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI 상태" />
+  </a>
+  <a href="https://github.com/YoungsPlace/screenshot-shield/actions/workflows/deploy.yml">
+    <img src="https://github.com/YoungsPlace/screenshot-shield/actions/workflows/deploy.yml/badge.svg?branch=main" alt="GitHub Pages 배포 상태" />
+  </a>
+  <img src="https://img.shields.io/badge/source-local--only-285cff" alt="이미지 로컬 처리" />
+  <img src="https://img.shields.io/badge/languages-KO%20%7C%20EN%20%7C%20ZH--CN-111522" alt="지원 언어: 한국어, 영어, 중국어 간체" />
+</p>
+
+<p align="center">
+  <a href="https://youngsplace.github.io/screenshot-shield/?view=editor&lang=ko"><strong>로컬 편집기 열기</strong></a>
+  ·
+  <a href="https://youngsplace.github.io/screenshot-shield/"><strong>출시 스토리 보기</strong></a>
+  ·
+  <a href="https://youngsplace.github.io/screenshot-shield/privacy.html?lang=ko">프라이버시</a>
+  ·
+  <a href="https://youngsplace.github.io/screenshot-shield/support.html?lang=ko">지원</a>
+</p>
+
+<p align="center">
+  <a href="https://youngsplace.github.io/screenshot-shield/">
+    <img src="./public/social-card.png" width="960" alt="Screenshot Shield — Redact before you share" />
+  </a>
+</p>
+
+## 왜 Screenshot Shield인가요?
+
+- **이미지는 로컬에서만 처리됩니다.** 업로드 엔드포인트, 계정, 광고, 분석, 추적 또는 원격 OCR이 없습니다.
+- **원본 대신 새 결과물을 만듭니다.** 검토가 끝난 화면을 새 캔버스에 렌더링해 PNG 또는 JPEG로 준비합니다.
+- **자동 제안에 의존하지 않습니다.** OCR을 사용할 수 없거나 놓친 항목이 있어도 수동 가리기·이동·크기 조절·삭제를 계속 사용할 수 있습니다.
+- **공유는 별도의 명시적 동작입니다.** 준비된 새 결과물만 사용자가 선택한 다운로드/저장 또는 공유 흐름으로 전달됩니다.
+
+## 바로 사용하기
+
+| 언어         | 출시 화면                                                                | 편집기 바로 열기                                                                       |
+| ------------ | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| **한국어**   | [출시 스토리](https://youngsplace.github.io/screenshot-shield/?lang=ko)  | [한국어 편집기](https://youngsplace.github.io/screenshot-shield/?view=editor&lang=ko)  |
+| **English**  | [Launch story](https://youngsplace.github.io/screenshot-shield/?lang=en) | [English editor](https://youngsplace.github.io/screenshot-shield/?view=editor&lang=en) |
+| **简体中文** | [发布介绍](https://youngsplace.github.io/screenshot-shield/?lang=zh-CN)  | [中文编辑器](https://youngsplace.github.io/screenshot-shield/?view=editor&lang=zh-CN)  |
 
 Screenshot Shield prepares a newly redacted screenshot in your browser. It is a Korean-first, multilingual mobile web tool hosted on GitHub Pages—not an upload service.
 
-- [Privacy policy](https://youngsplace.github.io/screenshot-shield/privacy.html?lang=en)
-- [Support](https://youngsplace.github.io/screenshot-shield/support.html?lang=en)
-- [Security reporting policy](./SECURITY.md)
+[Privacy policy](https://youngsplace.github.io/screenshot-shield/privacy.html?lang=en) ·
+[Support](https://youngsplace.github.io/screenshot-shield/support.html?lang=en) ·
+[Security reporting policy](./SECURITY.md)
 
 ## Phone workflow
 
