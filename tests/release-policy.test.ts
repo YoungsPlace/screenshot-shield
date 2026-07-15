@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const textFiles = [
@@ -13,6 +13,8 @@ const textFiles = [
   'src/marketing/i18n.ts',
   'src/ocr/localOcrClient.ts',
   'README.md',
+  'README.en.md',
+  'README.zh-CN.md',
   'PRIVACY.md',
   'SECURITY.md',
   'CONTRIBUTING.md',
@@ -59,7 +61,7 @@ describe('release and privacy guardrails', () => {
     const privacy = readFileSync('PRIVACY.md', 'utf8');
     const security = readFileSync('SECURITY.md', 'utf8');
 
-    expect(readme).toMatch(/browser memory|in-memory/i);
+    expect(readme).toMatch(/browser memory|in-memory|브라우저 메모리/i);
     expect(privacy).toMatch(
       /no application upload endpoint, backend, account system, screenshot\/export relay, advertising, analytics/i,
     );
@@ -69,6 +71,65 @@ describe('release and privacy guardrails', () => {
     expect(`${readme}\n${privacy}\n${security}`).not.toMatch(
       /guaranteed to detect|detects all|certified/i,
     );
+  });
+
+  it('keeps Korean, English, and Simplified Chinese READMEs complete and reciprocal', () => {
+    const readmes = {
+      ko: readFileSync('README.md', 'utf8'),
+      en: readFileSync('README.en.md', 'utf8'),
+      zhCN: readFileSync('README.zh-CN.md', 'utf8'),
+    };
+    const navigation = {
+      ko: '<strong>한국어</strong> · <a href="./README.en.md">English</a> · <a href="./README.zh-CN.md">简体中文</a>',
+      en: '<a href="./README.md">한국어</a> · <strong>English</strong> · <a href="./README.zh-CN.md">简体中文</a>',
+      zhCN: '<a href="./README.md">한국어</a> · <a href="./README.en.md">English</a> · <strong>简体中文</strong>',
+    };
+    const localizedDestinations = {
+      ko: ['?view=editor&lang=ko', 'privacy.html?lang=ko', 'support.html?lang=ko'],
+      en: ['?view=editor&lang=en', 'privacy.html?lang=en', 'support.html?lang=en'],
+      zhCN: ['?view=editor&lang=zh-CN', 'privacy.html?lang=zh-CN', 'support.html?lang=zh-CN'],
+    };
+
+    for (const [locale, readme] of Object.entries(readmes)) {
+      const normalized = readme.replace(/\s+/g, ' ').trim();
+      expect(normalized).toContain(navigation[locale as keyof typeof navigation]);
+      expect(readme.match(/^## /gm)?.length).toBe(readmes.ko.match(/^## /gm)?.length);
+      for (const destination of localizedDestinations[
+        locale as keyof typeof localizedDestinations
+      ]) {
+        expect(readme).toContain(destination);
+      }
+      for (const required of [
+        './public/icons/icon-192.png',
+        './public/social-card.png',
+        './docs/assets/synthetic-id-redaction-demo.svg',
+        '김빵주',
+        '940913-1234567',
+        '서울 올림픽파크포레온 999동 999호',
+        'npm run native:preflight',
+        'npm run store:verify',
+      ]) {
+        expect(readme).toContain(required);
+      }
+    }
+
+    expect(readmes.ko).not.toMatch(/^## (?:Phone|Editor|Availability|Report|Future|Contributing)/m);
+    expect(readmes.en).not.toMatch(/^## (?:모바일|편집기|제공|안전하게|향후|기여)/m);
+    expect(readmes.zhCN).not.toMatch(/^## (?:모바일|편집기|제공|안전하게|향후|기여)/m);
+
+    for (const path of [
+      'README.md',
+      'README.en.md',
+      'README.zh-CN.md',
+      'public/icons/icon-192.png',
+      'public/social-card.png',
+      'docs/assets/synthetic-id-redaction-demo.svg',
+      'SECURITY.md',
+      'PRIVACY.md',
+      'CONTRIBUTING.md',
+    ]) {
+      expect(existsSync(path), `missing localized README target: ${path}`).toBe(true);
+    }
   });
 
   it('keeps release-owned files free of third-party runtime endpoints and fake secrets', () => {
