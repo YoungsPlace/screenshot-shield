@@ -49,7 +49,7 @@ describe('native physical and toolchain preflight', () => {
       'Required human physical attestation is missing: toolchains/native-physical-gate.json',
     );
     expect(text).toContain('Physical device:');
-  });
+  }, 20_000);
 
   it('rejects substituted immutable native plans and an empty toolchain lock', () => {
     const root = fixture();

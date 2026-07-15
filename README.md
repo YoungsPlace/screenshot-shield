@@ -17,8 +17,8 @@
   <a href="https://github.com/YoungsPlace/screenshot-shield/actions/workflows/deploy.yml">
     <img src="https://github.com/YoungsPlace/screenshot-shield/actions/workflows/deploy.yml/badge.svg?branch=main" alt="GitHub Pages 배포 상태" />
   </a>
-  <img src="https://img.shields.io/badge/source-local--only-285cff" alt="이미지 로컬 처리" />
-  <img src="https://img.shields.io/badge/languages-KO%20%7C%20EN%20%7C%20ZH--CN-111522" alt="지원 언어: 한국어, 영어, 중국어 간체" />
+  <br />
+  <strong>LOCAL-ONLY SOURCE · KO / EN / ZH-CN</strong>
 </p>
 
 <p align="center">
